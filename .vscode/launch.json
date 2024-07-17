@@ -7,7 +7,7 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "python": "${workspaceFolder}/.venv/bin/python"
+            "python": "${workspaceFolder}/backend/.venv/bin/python"
         },
         {
             "name": "Python Debugger: FastAPI",
@@ -30,8 +30,8 @@
                 "BACKEND_PORT": "8000",
                 "WORKERS": "1"
             },
-            "envFile": "${workspaceFolder}/.env",
-            "python": "${workspaceFolder}/.venv/bin/python"
+            "envFile": "${workspaceFolder}/backend/app/.env",
+            "python": "${workspaceFolder}/backend/.venv/bin/python"
         }
     ]
 }
