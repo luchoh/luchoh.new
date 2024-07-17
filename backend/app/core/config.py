@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
     # Database settings
-    DATABASE_URL: str = "mysql+pymysql://user:password@localhost/dbname"
+    DATABASE_URL: str = "mysql+pymysql://luchoh@localhost/luchoh_photography"
 
     # CORS settings
     BACKEND_CORS_ORIGINS: List[str] = [

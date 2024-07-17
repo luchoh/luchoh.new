@@ -47,8 +47,13 @@ document.addEventListener('DOMContentLoaded', () => {
         fetchImages(gallerySlug);
     }
 
-    var elems = document.querySelectorAll('.button-collapse');
-    var instances = M.Sidenav.init(elems, {
-        closeOnClick: true
-    });
+    // Mobile menu toggle (if needed)
+    const mobileMenuToggle = document.querySelector('.button-collapse');
+    const mobileMenu = document.querySelector('#mobile-menu');
+
+    if (mobileMenuToggle && mobileMenu) {
+        mobileMenuToggle.addEventListener('click', () => {
+            mobileMenu.classList.toggle('active');
+        });
+    }
 });

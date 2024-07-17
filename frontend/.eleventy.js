@@ -1,20 +1,85 @@
 const { DateTime } = require("luxon");
+const fetch = require('node-fetch');
+
+const API_BASE_URL = 'http://localhost:8000';
 
 module.exports = function (eleventyConfig) {
-    eleventyConfig.addPassthroughCopy("src/css");
+
+    eleventyConfig.setBrowserSyncConfig({
+        server: {
+            baseDir: 'dist',
+            serveStaticOptions: {
+                extensions: ['html', 'css']
+            }
+        },
+        files: ['dist/**/*'],
+        snippetOptions: {
+            rule: {
+                match: /<\/head>/i,
+                fn: function (snippet, match) {
+                    return snippet + match;
+                }
+            }
+        }
+    });
+
+    eleventyConfig.addPassthroughCopy({ "src/css": "css" });
     eleventyConfig.addPassthroughCopy("src/js");
     eleventyConfig.addPassthroughCopy("src/images");
+
+    eleventyConfig.addPassthroughCopy({
+        "src/css/styles.css": {
+            "path": "css/styles.css",
+            "type": "text/css"
+        }
+    });
+
+    eleventyConfig.on('eleventy.after', () => {
+        console.log('CSS file should be at:', __dirname + '/dist/css/styles.css');
+        const fs = require('fs');
+        if (fs.existsSync(__dirname + '/dist/css/styles.css')) {
+            console.log('CSS file exists');
+        } else {
+            console.log('CSS file does not exist');
+        }
+    });
+
+    // Fetch galleries from the API
+    eleventyConfig.addGlobalData("galleries", async () => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/v1/galleries/`);
+            return await response.json();
+        } catch (error) {
+            console.error("Failed to fetch galleries:", error);
+            return []; // Return empty array in case of error
+        }
+    });
+
+    // Fetch images from the API
+    eleventyConfig.addGlobalData("images", async () => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/v1/images/`);
+            return await response.json();
+        } catch (error) {
+            console.error("Failed to fetch images:", error);
+            return []; // Return empty array in case of error
+        }
+    });
 
     // Add a date filter
     eleventyConfig.addFilter("date", (dateObj, format) => {
         return DateTime.fromJSDate(dateObj).toFormat(format);
     });
 
-    eleventyConfig.addFilter("dateYear", function () {
+    // Add a dateYear filter
+    eleventyConfig.addFilter("dateYear", () => {
         return new Date().getFullYear();
     });
 
-    eleventyConfig.addGlobalData("bannerImage", "/images/luchoh-logo-invert.png");
+    // Set the logo image
+    eleventyConfig.addGlobalData("logoImage", "/images/luchoh-logo-invert.png");
+    // Set the banner image
+    eleventyConfig.addGlobalData("bannerImage", "/images/banner.jpg");
 
     return {
         dir: {
@@ -22,26 +87,8 @@ module.exports = function (eleventyConfig) {
             output: "dist",
             includes: "_includes"
         },
-        // This will create pages for galleries and images dynamically
-        // You'll need to update these functions to fetch real data from your API
         async: true,
         defer: true,
-        eleventyComputed: {
-            galleries: async () => {
-                // Fetch galleries from your API
-                return [
-                    { slug: 'nature', title: 'Nature', description: 'Beautiful nature photos' },
-                    { slug: 'cities', title: 'Cities', description: 'Urban landscapes' }
-                ];
-            },
-            images: async () => {
-                // Fetch images from your API
-                return [
-                    { slug: 'sunset', title: 'Sunset', url: '/images/sunset.jpg', description: 'A beautiful sunset' },
-                    { slug: 'mountains', title: 'Mountains', url: '/images/mountains.jpg', description: 'Majestic mountains' }
-                ];
-            }
-        },
         templateFormats: ["njk", "md", "html"],
         markdownTemplateEngine: "njk",
         htmlTemplateEngine: "njk",
