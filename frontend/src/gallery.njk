@@ -1,0 +1,18 @@
+---
+layout: base.njk
+permalink: "/gallery/{{ gallery.slug }}/"
+---
+
+<h1>{{ gallery.title }}</h1>
+<p>{{ gallery.description }}</p>
+
+<div id="image-list" data-gallery-slug="{{ gallery.slug }}">
+    <!-- This will be populated dynamically with JavaScript -->
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const gallerySlug = document.getElementById('image-list').dataset.gallerySlug;
+        fetchImages(gallerySlug);
+    });
+</script>

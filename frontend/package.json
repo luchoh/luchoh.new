@@ -1,0 +1,19 @@
+{
+  "name": "luchoh.com frontend",
+  "version": "1.0.0",
+  "description": "luchoH Galleries",
+  "main": "index.js",
+  "scripts": {
+    "start": "eleventy --serve",
+    "build": "eleventy"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@11ty/eleventy": "^2.0.1"
+  },
+  "dependencies": {
+    "luxon": "^3.4.4"
+  }
+}

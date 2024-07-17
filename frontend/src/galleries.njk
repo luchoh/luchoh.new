@@ -1,0 +1,15 @@
+---
+layout: base.njk
+permalink: "/galleries/"
+---
+
+<h1>Our Galleries</h1>
+<ul id="gallery-list">
+    <!-- This will be populated dynamically with JavaScript -->
+</ul>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        fetchGalleries();
+    });
+</script>

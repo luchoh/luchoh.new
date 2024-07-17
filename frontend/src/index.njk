@@ -1,0 +1,16 @@
+---
+layout: base.njk
+---
+<div class="banner">
+    <img src="{{ bannerImage }}" alt="Banner">
+</div>
+
+<div class="image-grid">
+    {% for image in images %}
+    <div class="image-item">
+        <img src="{{ image.url }}" alt="{{ image.title }}">
+        <p class="image-title">{{ image.title }}</p>
+        <p class="image-description">{{ image.description }}</p>
+    </div>
+    {% endfor %}
+</div>
