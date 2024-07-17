@@ -13,11 +13,12 @@ class UserCreate(UserBase):
 
 
 class UserUpdate(UserBase):
-    password: str | None = None
+    password: str
 
 
 class User(UserBase):
     id: int
+    is_active: bool
 
     class Config:
         orm_mode = True

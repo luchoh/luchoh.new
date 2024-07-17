@@ -6,17 +6,18 @@ authors = ["Lucho Hristov <luchoh@luchoh.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.11"
-fastapi = "^0.95.0"
+fastapi = "^0.100.0"
 uvicorn = {extras = ["standard"], version = "^0.21.1"}
-sqlalchemy = "^2.0.9"
+sqlalchemy = "^2.0"
 pymysql = "^1.0.2"  # Replace mysqlclient with pymysql
 python-jose = {extras = ["cryptography"], version = "^3.3.0"}
-passlib = "^1.7.4"
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 python-multipart = "^0.0.6"
-pydantic = {extras = ["email"], version = "^1.10.7"}
+pydantic = {extras = ["email"], version = "^2.8.2"}
 jinja2 = "^3.1.4"
 alembic = "^1.13.2"
 bcrypt = "^4.1.3"
+pydantic-settings = "^2.3.4"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.3.0"

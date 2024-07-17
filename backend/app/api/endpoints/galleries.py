@@ -28,8 +28,10 @@ def create_gallery(
 
 @router.get("/", response_model=List[gallery_schema.Gallery])
 def read_galleries(
-    db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)
+    db: Session = Depends(get_db),
+    # , current_user: User = Depends(get_current_active_user)
 ):
+    print("Accessing /galleries/ endpoint")
     return gallery.get_multi(db)
 
 
