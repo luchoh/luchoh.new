@@ -4,9 +4,9 @@
     <li class="galleries">
         <ul>
             {% for gallery in galleries %}
-                <li><a href="/galleries/{{ gallery.slug }}" {% if gallery.slug == page.fileSlug %}class="active"{% endif %}>{{ gallery.title | lower }}</a></li>
+                <li><a href="/galleries/{{ gallery.slug }}" title="{{ gallery.description }}">{{ gallery.title | lower }}</a></li>
             {% endfor %}
-            <li><a href="/admin" class="content-signin">sign in</a></li>
+            <li><a class="content-signin" href="/admin">sign in</a></li>
         </ul>
     </li>
 </ul>

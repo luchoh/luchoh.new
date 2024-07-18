@@ -1,7 +1,14 @@
 /* Project: luchoh.com refactoring
    File: frontend/src/css/styles.css */
 
-   body {
+html {
+    line-height: 1.5;
+    font-family: Roboto, sans-serif;
+    font-weight: 400;
+    color: rgba(0, 0, 0, .87)
+}
+
+body {
     font-family: 'Lucida Grande', Verdana, Arial, sans-serif;
     line-height: 1em;
     font-size: 8pt;
@@ -12,10 +19,22 @@
     color: rgba(0, 0, 0, 0.87);
 }
 
-.container, nav, footer {
+body,
+html {
+    height: 100%;
+}
+
+.container,
+nav,
+footer {
     line-height: 1em;
     font-size: 8pt;
     letter-spacing: 0.05em;
+}
+
+.container .row {
+    margin-left: -.75rem;
+    margin-right: -.75rem;
 }
 
 .nav-wrapper {
@@ -24,15 +43,20 @@
     font-size: 1.2em;
 }
 
+.nav-wrapper .row {
+    margin-bottom: 0;
+}
+
+.nav-wrapper .divider {
+    margin-top: 10px;
+}
+
 nav {
     height: auto;
     box-shadow: none;
 }
 
-.logo {
-    margin-top: 20px;
-    margin-bottom: 15px;
-}
+.logo {}
 
 .logo img {
     width: 100px;
@@ -45,13 +69,16 @@ nav {
     margin: 0;
 }
 
-.menu {
+nav ul.menu.hide-on-med-and-down {
     margin: 0;
+    margin-bottom: 10px;
     padding: 6px 0 0;
     list-style: none;
     font-size: 1.2em;
-    text-transform: lowercase;
+    position: relative;
+    display: inline-block;
     float: right;
+    text-transform: lowercase;
 }
 
 .menu li {
@@ -127,6 +154,18 @@ nav {
     padding: 0 11.25px;
 }
 
+@media only screen and (min-width: 0) {
+    html {
+        font-size: 14px;
+    }
+}
+
+@media only screen and (min-width: 1200px) {
+    html {
+        font-size: 15px;
+    }
+}
+
 @media only screen and (max-width: 992px) {
     .nav-wrapper .side-nav {
         font-size: 1.6rem;
@@ -150,7 +189,7 @@ nav {
         font-size: 2rem;
     }
 
-    .nav-wrapper .side-nav li.galleries .signin a + p {
+    .nav-wrapper .side-nav li.galleries .signin a+p {
         padding-left: 2em;
     }
 
