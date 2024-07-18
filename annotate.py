@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 from typing import Dict, Optional, List
 import re
@@ -6,7 +5,7 @@ import re
 # Define comment styles as a constant dictionary
 COMMENT_STYLES: Dict[str, Dict[str, Optional[str]]] = {
     ".py": {"start": "#", "end": None},
-    ".njk": {"start": "#", "end": None},
+    ".njk": {"start": "{#", "end": "#}"},
     ".html": {"start": "/*", "end": "*/"},
     ".css": {"start": "/*", "end": "*/"},
     ".js": {"start": "/*", "end": "*/"},
@@ -15,6 +14,7 @@ COMMENT_STYLES: Dict[str, Dict[str, Optional[str]]] = {
 # Define patterns for folders to skip
 SKIP_PATTERNS: List[str] = [
     r"(^|/)dist($|/)",
+    r"(^|/)__pycache__($|/)",
     r"(^|/)__pycache__($|/)",
     r"(^|/)node_modules($|/)",
     r"(^|/)\.git($|/)",
@@ -51,15 +51,34 @@ def annotate_file(file_path: Path, relative_path: Path, project: str) -> None:
             return
 
         file.seek(0)
-        if comment_style["end"]:
+
+        # Check for front matter
+        front_matter_match = re.match(r"^---\n(.*?\n)---\n", content, re.DOTALL)
+
+        if front_matter_match:
+            front_matter = front_matter_match.group(0)
+            rest_of_content = content[len(front_matter) :]
+
+            file.write(front_matter)
             file.write(
-                f"{comment_style['start']}Project: {project}\nFile: {relative_path}{comment_style['end']}\n"
+                f"{comment_style['start']} Project: {project} # File: {relative_path} {comment_style['end']}\n"
             )
+            file.write(rest_of_content)
         else:
-            file.write(
-                f"{comment_style['start']} Project: {project}\n{comment_style['start']} File: {relative_path}\n"
-            )
-        file.write(content)
+            # If no front matter, proceed as before
+            if file_path.suffix == ".njk":
+                file.write(
+                    f"{comment_style['start']} Project: {project} # File: {relative_path} {comment_style['end']}\n"
+                )
+            elif comment_style["end"]:
+                file.write(
+                    f"{comment_style['start']}Project: {project}\nFile: {relative_path}{comment_style['end']}\n"
+                )
+            else:
+                file.write(
+                    f"{comment_style['start']} Project: {project}\n{comment_style['start']} File: {relative_path}\n"
+                )
+            file.write(content)
 
     print(f"Annotated {file_path}")
 
