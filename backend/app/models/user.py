@@ -1,3 +1,5 @@
+# Project: luchoh.com refactoring
+# File: backend/app/models/user.py
 from sqlalchemy import Boolean, Column, Integer, String
 from app.db.base_class import Base
 

@@ -1,3 +1,5 @@
+# Project: luchoh.com refactoring
+# File: backend/app/api/api.py
 from fastapi import APIRouter
 from app.api.endpoints import images, galleries, auth, upload
 

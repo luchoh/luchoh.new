@@ -1,3 +1,5 @@
+# Project: luchoh.com refactoring
+# File: backend/__init__.py
 import os
 import sys
 

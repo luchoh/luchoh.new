@@ -1,3 +1,5 @@
+# Project: luchoh.com refactoring
+# File: backend/app/crud/gallery.py
 from sqlalchemy.orm import Session
 from .base import CRUDBase
 from app.models.gallery import Gallery

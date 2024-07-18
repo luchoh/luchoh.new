@@ -1,3 +1,5 @@
+# Project: luchoh.com refactoring
+# File: backend/app/auth/security.py
 from passlib.context import CryptContext
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")

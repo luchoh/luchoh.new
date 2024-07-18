@@ -1,3 +1,5 @@
+# Project: luchoh.com refactoring
+# File: backend/app/main.py
 import os
 from fastapi import FastAPI, Request
 from fastapi.templating import Jinja2Templates

@@ -1,3 +1,5 @@
+# Project: luchoh.com refactoring
+# File: backend/app/schemas/token.py
 from pydantic import BaseModel
 
 

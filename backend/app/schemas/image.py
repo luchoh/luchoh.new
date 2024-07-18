@@ -1,3 +1,5 @@
+# Project: luchoh.com refactoring
+# File: backend/app/schemas/image.py
 from pydantic import BaseModel
 
 

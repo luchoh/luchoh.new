@@ -1,3 +1,5 @@
+/*Project: luchoh.com refactoring
+File: backend/app/static/admin.js*/
 // admin.js
 
 document.addEventListener('DOMContentLoaded', () => {

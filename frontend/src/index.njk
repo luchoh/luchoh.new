@@ -1,18 +1,29 @@
+# Project: luchoh.com refactoring
+# File: frontend/src/index.njk
 ---
 layout: base.njk
 ---
-<div class="banner">
-    <img src="{{ bannerImage }}" alt="Banner">
-</div>
 
-<div class="image-grid">
-    {% for image in images %}
-    <div class="image-item">
-        <img src="{{ image.url }}" alt="{{ image.title }}">
-        <p class="image-title">{{ image.title }}</p>
-        <p class="image-description">{{ image.description }}</p>
+<div class="container grey darken-4">
+    {% include "partials/sticky.njk" %}
+
+    <div class="container grey darken-4" itemscope itemtype="http://schema.org/ImageGallery">
+        <div class="row">
+            <div class="col s12 center-align">
+                <div class="row">
+                    <div id="latest-photos" class="col s12 center-align">
+                        <div class="image-grid">
+                            {% for image in images %}
+                            <div class="col s12 l3 m6 featured-photo">
+                                {% include "partials/image.njk" %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    {% endfor %}
 </div>
 
 {% if images.length === 0 %}

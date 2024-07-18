@@ -1,3 +1,5 @@
+# Project: luchoh.com refactoring
+# File: backend/app/crud/image.py
 from app.models.image import Image
 from app.schemas.image import ImageCreate
 from .base import CRUDBase

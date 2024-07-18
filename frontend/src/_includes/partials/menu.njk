@@ -1,0 +1,8 @@
+# Project: luchoh.com refactoring
+# File: frontend/src/_includes/partials/menu.njk
+<ul class="menu hide-on-med-and-down">
+    {% for gallery in galleries %}
+    <li><a href="/galleries/{{ gallery.slug }}" {% if gallery.slug == page.fileSlug %}class="active"{% endif %}>{{ gallery.title | lower }}</a></li>
+    {% endfor %}
+    <li><a href="/admin" class="content-signin">sign in</a></li>
+</ul>

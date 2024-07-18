@@ -1,3 +1,5 @@
+# Project: luchoh.com refactoring
+# File: backend/commands.py
 import sys
 import os
 

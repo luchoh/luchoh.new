@@ -1,3 +1,5 @@
+/*Project: luchoh.com refactoring
+File: frontend/src/js/main.js*/
 async function fetchGalleries() {
     try {
         const response = await fetch('/api/v1/galleries/');
@@ -37,6 +39,9 @@ async function fetchImages(gallerySlug) {
 document.addEventListener('DOMContentLoaded', () => {
     const galleryList = document.getElementById('gallery-list');
     const imageList = document.getElementById('image-list');
+
+    var elems = document.querySelectorAll('.sidenav');
+    var instances = M.Sidenav.init(elems);
 
     if (galleryList) {
         fetchGalleries();

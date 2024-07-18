@@ -1,3 +1,5 @@
+# Project: luchoh.com refactoring
+# File: backend/app/schemas/gallery.py
 from typing import Optional
 from pydantic import BaseModel
 from .image import Image

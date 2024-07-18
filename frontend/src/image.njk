@@ -1,8 +1,17 @@
----
-layout: base.njk
-permalink: "/image/{{ image.slug }}/"
----
+# Project: luchoh.com refactoring
+# File: frontend/src/image.njk
+<div class="image index" itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    {% if image.url %}
+        <a href="{{ image.url }}" class="swipebox" itemprop="contentUrl" title="{{ image.title }}">
+            <img src="{{ image.thumbnail }}" alt="{{ image.title }}" class="center-align responsive-img">
+            <img src="/thumbnail/{{ image.slug }}" class="hide" itemprop="thumbnail">
+        </a>
+    {% else %}
+        <img src="{{ image.thumbnail }}" alt="{{ image.title }}" class="center-align responsive-img" 
+             delay="50" position="bottom" tooltip="Please login to view full-size images" itemprop="contentUrl">
+    {% endif %}
 
-<h1>{{ image.title }}</h1>
-<img src="{{ image.url }}" alt="{{ image.title }}">
-<p>{{ image.description }}</p>
+    <div class="window title">
+        <h3 class="title" itemprop="name">{{ image.title }}</h3>
+    </div>
+</div>

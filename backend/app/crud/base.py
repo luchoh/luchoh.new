@@ -1,3 +1,5 @@
+# Project: luchoh.com refactoring
+# File: backend/app/crud/base.py
 from sqlalchemy.orm import Session
 from fastapi.encoders import jsonable_encoder
 

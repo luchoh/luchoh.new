@@ -1,3 +1,5 @@
+# Project: luchoh.com refactoring
+# File: backend/app/api/endpoints/images.py
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.crud.image import image

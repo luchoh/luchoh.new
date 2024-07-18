@@ -23,15 +23,14 @@ module.exports = function (eleventyConfig) {
         }
     });
 
-    eleventyConfig.addPassthroughCopy({ "src/css": "css" });
+    // Correct the passthrough copy for CSS
+    eleventyConfig.addPassthroughCopy("src/css");
     eleventyConfig.addPassthroughCopy("src/js");
     eleventyConfig.addPassthroughCopy("src/images");
 
     eleventyConfig.addPassthroughCopy({
-        "src/css/styles.css": {
-            "path": "css/styles.css",
-            "type": "text/css"
-        }
+        'node_modules/materialize-css/dist/css/materialize.min.css': 'css/materialize.min.css',
+        'node_modules/materialize-css/dist/js/materialize.min.js': 'js/materialize.min.js'
     });
 
     eleventyConfig.on('eleventy.after', () => {

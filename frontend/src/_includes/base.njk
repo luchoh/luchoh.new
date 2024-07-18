@@ -1,34 +1,28 @@
+# Project: luchoh.com refactoring
+# File: frontend/src/_includes/base.njk
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% if title %}{{ title }} | {% endif %}luchoH Photography</title>
+    <link rel="stylesheet" href="/css/materialize.min.css">
     <link rel="stylesheet" href="/css/styles.css">
 </head>
-<body>
+<body class="grey darken-4">
     <header>
-        <div class="logo">
-            <a href="/"><img src="{{ logoImage }}" alt="luchoH"></a>
-        </div>
-        <nav>
-            <ul>
-                {% for gallery in galleries %}
-                <li><a href="/gallery/{{ gallery.slug }}">{{ gallery.title | lower }}</a></li>
-                {% endfor %}
-                <li><a href="http://localhost:8000/admin">sign in</a></li>
-            </ul>
-        </nav>
+        {% include "partials/header.njk" %}
     </header>
 
-    <main>
+    <main id="gallery">
         {{ content | safe }}
     </main>
 
     <footer>
-        <p>&copy; {{ '' | dateYear }} luchoH Photography</p>
+        {% include "partials/footer.njk" %}
     </footer>
 
+    <script src="/js/materialize.min.js"></script>
     <script src="/js/main.js"></script>
 </body>
 </html>

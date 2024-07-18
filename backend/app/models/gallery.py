@@ -1,3 +1,5 @@
+# Project: luchoh.com refactoring
+# File: backend/app/models/gallery.py
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 from app.db.base_class import Base

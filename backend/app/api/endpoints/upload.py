@@ -1,3 +1,5 @@
+# Project: luchoh.com refactoring
+# File: backend/app/api/endpoints/upload.py
 import os
 from fastapi import APIRouter, UploadFile, File, Depends, HTTPException
 from app.auth.auth import get_current_active_user
