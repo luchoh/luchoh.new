@@ -1,95 +1,125 @@
-/*Project: luchoh.com refactoring
-File: backend/app/static/admin.js*/
-// admin.js
+// Project: luchoh.com refactoring
+// File: frontend/src/js/admin.js
 
-document.addEventListener('DOMContentLoaded', () => {
-    const loginForm = document.getElementById('login-form');
-    const uploadForm = document.getElementById('upload-form');
-    const loginFormDiv = document.getElementById('loginForm');
-    const adminContentDiv = document.getElementById('adminContent');
-    const galleryList = document.getElementById('gallery-list');
+document.addEventListener('DOMContentLoaded', function () {
+    // Existing Materialize initialization
+    var elems = document.querySelectorAll('select');
+    var instances = M.FormSelect.init(elems);
 
-    // Login form submission
-    loginForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
-
-        try {
-            const response = await fetch('/api/v1/auth/token', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`,
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                localStorage.setItem('token', data.access_token);
-                loginFormDiv.style.display = 'none';
-                adminContentDiv.style.display = 'block';
-                fetchGalleries();
-            } else {
-                alert('Login failed. Please try again.');
-            }
-        } catch (error) {
-            console.error('Login error:', error);
-            alert('An error occurred. Please try again.');
-        }
-    });
-
-    // Image upload form submission
-    uploadForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const formData = new FormData(uploadForm);
-
-        try {
-            const response = await fetch('/api/v1/upload/uploadfile/', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                },
-                body: formData,
-            });
-
-            if (response.ok) {
-                alert('Image uploaded successfully!');
-                uploadForm.reset();
-            } else {
-                alert('Upload failed. Please try again.');
-            }
-        } catch (error) {
-            console.error('Upload error:', error);
-            alert('An error occurred. Please try again.');
-        }
-    });
-
-    // Fetch and display galleries
-    async function fetchGalleries() {
-        try {
-            const response = await fetch('/api/v1/galleries/', {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                },
-            });
-
-            if (response.ok) {
-                const galleries = await response.json();
-                galleryList.innerHTML = galleries.map(gallery =>
-                    `<li>${gallery.title}</li>`
-                ).join('');
-
-                // Populate gallery dropdown in upload form
-                const gallerySelect = document.getElementById('gallery');
-                gallerySelect.innerHTML = galleries.map(gallery =>
-                    `<option value="${gallery.id}">${gallery.title}</option>`
-                ).join('');
-            } else {
-                console.error('Failed to fetch galleries');
-            }
-        } catch (error) {
-            console.error('Error fetching galleries:', error);
-        }
+    // Existing category selection functionality
+    var categorySelect = document.getElementById('category-select');
+    if (categorySelect) {
+        categorySelect.addEventListener('change', function () {
+            var selectedCategory = this.value;
+            window.location.href = '/admin/galleries/' + selectedCategory;
+        });
     }
+
+    // New: Login form handler
+    const loginForm = document.getElementById('login-form');
+    if (loginForm) {
+        loginForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const success = await login(email, password);
+            if (success) {
+                window.location.href = '/admin/dashboard';
+            } else {
+                alert('Login failed. Please check your credentials.');
+            }
+        });
+    }
+
+    // New: Logout button handler
+    const logoutButton = document.getElementById('logout-button');
+    if (logoutButton) {
+        logoutButton.addEventListener('click', logout);
+    }
+
+    // New: Check login status on page load
+    checkLoginStatus();
 });
+
+// New: Authentication functions
+async function login(email, password) {
+    const response = await fetch('/api/v1/auth/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `username=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`,
+    });
+
+    if (response.ok) {
+        const data = await response.json();
+        setToken(data.access_token);
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function logout() {
+    setToken('');
+    window.location.href = '/admin/login';
+}
+
+function setToken(token) {
+    localStorage.setItem('token', token);
+}
+
+function getToken() {
+    return localStorage.getItem('token');
+}
+
+function isLoggedIn() {
+    return !!getToken();
+}
+
+async function checkLoginStatus() {
+    if (!isLoggedIn()) {
+        window.location.href = '/admin/login';
+    }
+}
+
+// Modified: Use authenticated requests
+async function createGallery(title, description) {
+    const response = await fetch('/api/v1/galleries/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${getToken()}`
+        },
+        body: JSON.stringify({ title, description }),
+    });
+
+    if (response.ok) {
+        const newGallery = await response.json();
+        return newGallery;
+    } else {
+        throw new Error('Failed to create gallery');
+    }
+}
+
+// Modified: Use authenticated requests
+async function uploadImage(file, galleryId) {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('gallery_id', galleryId);
+
+    const response = await fetch('/api/v1/images/upload/', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${getToken()}`
+        },
+        body: formData,
+    });
+
+    if (response.ok) {
+        const newImage = await response.json();
+        return newImage;
+    } else {
+        throw new Error('Failed to upload image');
+    }
+}

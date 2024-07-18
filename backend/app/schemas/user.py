@@ -1,26 +1,37 @@
 # Project: luchoh.com refactoring
 # File: backend/app/schemas/user.py
+
 from pydantic import BaseModel, EmailStr
+from typing import Optional
 
 
 class UserBase(BaseModel):
-    username: str
-    email: EmailStr
-    is_active: bool = True
+    email: Optional[EmailStr] = None
+    is_active: Optional[bool] = True
     is_superuser: bool = False
+    full_name: Optional[str] = None
+    username: Optional[str] = None
 
 
 class UserCreate(UserBase):
+    email: EmailStr
     password: str
+    username: str
 
 
 class UserUpdate(UserBase):
-    password: str
+    password: Optional[str] = None
 
 
 class User(UserBase):
     id: int
     is_active: bool
+    username: str
+    email: EmailStr
 
     class Config:
-        orm_mode = True
+        from_attributes = True  # This replaces orm_mode = True
+
+
+class UserInDB(User):
+    hashed_password: str

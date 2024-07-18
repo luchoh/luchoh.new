@@ -19,10 +19,9 @@ IMPORTANT:
 
 4. Please add the anotation to the files.
 
-The project progress so far
+The project progress so far is to implement backend and CMS as follows:
 
-A. Backend:
-Mostly implemented; it has the necessary endpoints and an Admin UI. For now - no need to focus on the admin UI.
+It has the necessary endpoints and an Admin UI. For now - no need to focus on the admin UI.
 The backend is built with:
 FastAPI for the Python backend
 MySQL for the database
@@ -32,12 +31,5 @@ Implemented image upload capability - done, tested.
 
 
 The code is available and can be provided ad hoc.
-
-B. Frontend:
-
-The frontend used Eleventy (11ty) and Materialize.js. The implementatio has started, but it's nowhere near complete. Your goal is to facilitate the completion of this component.
-
-
-For the Image Gallery, we would like to replicate the old design and functionality as much as possible. 
 
 FOCUS ON BACKEND CODE!

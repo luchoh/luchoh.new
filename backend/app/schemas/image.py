@@ -1,24 +1,38 @@
 # Project: luchoh.com refactoring
 # File: backend/app/schemas/image.py
-from pydantic import BaseModel
 from typing import Optional
+from pydantic import BaseModel
+from datetime import datetime
+
 
 class ImageBase(BaseModel):
     title: str
     description: Optional[str] = None
-    file_path: str
+    url: str
+    thumbnail_url: Optional[str] = None
+
 
 class ImageCreate(ImageBase):
-    gallery_id: int
+    pass
+
 
 class ImageUpdate(ImageBase):
-    title: Optional[str] = None
-    file_path: Optional[str] = None
-    gallery_id: Optional[int] = None
+    pass
 
-class Image(ImageBase):
+
+class ImageInDBBase(ImageBase):
     id: int
-    gallery_id: int
+    owner_id: int
+    created_at: datetime
+    updated_at: datetime
 
     class Config:
-        from_attributes = True  # Updated from orm_mode = True
+        from_attributes = True
+
+
+class Image(ImageInDBBase):
+    pass
+
+
+class ImageInDB(ImageInDBBase):
+    pass

@@ -1,5 +1,7 @@
 # Project: luchoh.com refactoring
 # File: backend/app/schemas/__init__.py
-from .image import Image, ImageCreate, ImageUpdate
-from .gallery import Gallery, GalleryCreate, GalleryUpdate
-from .token import Token, TokenData
+from .token import Token, TokenPayload
+from .user import User, UserCreate, UserInDB, UserUpdate
+from .image import Image, ImageCreate, ImageInDB, ImageUpdate
+from .gallery import Gallery, GalleryBase, GalleryCreate, GalleryUpdate
+from .msg import Msg
