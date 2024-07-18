@@ -1,6 +1,6 @@
 # Project: luchoh.com refactoring
 # File: backend/app/schemas/token.py
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 
 class Token(BaseModel):
@@ -9,4 +9,4 @@ class Token(BaseModel):
 
 
 class TokenData(BaseModel):
-    email: str | None = None
+    email: EmailStr | None = None

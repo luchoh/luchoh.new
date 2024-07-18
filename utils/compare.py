@@ -55,9 +55,9 @@ def write_differences_to_file(differences, file_path):
                 file.write(f"  {prop}: {desc}\n")
 
 # Usage example:
-old_output_path = 'old.yaml'  # Adjust these file paths as needed
-new_output_path = 'new.yaml'
-output_differences_path = 'compared.yaml'
+old_output_path = '_scraps/data/old.yaml'  # Adjust these file paths as needed
+new_output_path = '_scraps/data/new.yaml'
+output_differences_path = '_scraps/data/compared.yaml'
 
 old_styles = parse_styles(old_output_path)
 new_styles = parse_styles(new_output_path)

@@ -3,65 +3,74 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.crud.gallery import gallery
-from app.schemas import gallery as gallery_schema
-from app.db.session import get_db
-from app.auth.auth import get_current_active_user
-from app.models.user import User
+from app import crud, models, schemas
+from app.api import deps
 
 router = APIRouter()
 
-
-@router.post("/", response_model=gallery_schema.Gallery)
+@router.post("/", response_model=schemas.Gallery)
 def create_gallery(
-    gallery_in: gallery_schema.GalleryCreate,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user),
+    *,
+    db: Session = Depends(deps.get_db),
+    gallery_in: schemas.GalleryCreate,
+    current_user: models.User = Depends(deps.get_current_active_user),
+    image_ids: List[int]
 ):
-    if not current_user.is_superuser:
-        raise HTTPException(status_code=403, detail="Not enough permissions")
-    db_gallery = gallery.get_by_title(db, title=gallery_in.title)
-    if db_gallery:
-        raise HTTPException(
-            status_code=400, detail="A gallery with this title already exists."
-        )
-    return db_gallery.create(db=db, obj_in=gallery_in)
+    if not crud.user.is_superuser(current_user):
+        raise HTTPException(status_code=400, detail="Not enough permissions")
+    gallery = crud.gallery.create_with_images(db=db, obj_in=gallery_in, image_ids=image_ids)
+    return gallery
 
-
-@router.get("/", response_model=List[gallery_schema.Gallery])
+@router.get("/", response_model=List[schemas.Gallery])
 def read_galleries(
-    db: Session = Depends(get_db),
-    # , current_user: User = Depends(get_current_active_user)
+    db: Session = Depends(deps.get_db),
+    skip: int = 0,
+    limit: int = 100,
+    current_user: models.User = Depends(deps.get_current_active_user),
 ):
-    print("Accessing /galleries/ endpoint")
-    return gallery.get_multi(db)
+    galleries = crud.gallery.get_multi(db, skip=skip, limit=limit)
+    return galleries
 
-
-@router.get("/{gallery_id}", response_model=gallery_schema.Gallery)
-def read_gallery(gallery_id: int, db: Session = Depends(get_db)):
-    db_gallery = gallery.get(db, id=gallery_id)
-    if db_gallery is None:
-        raise HTTPException(status_code=404, detail="Gallery not found")
-    return db_gallery
-
-
-@router.put("/{gallery_id}", response_model=gallery_schema.Gallery)
-def update_gallery(
+@router.get("/{gallery_id}", response_model=schemas.Gallery)
+def read_gallery(
     gallery_id: int,
-    gallery_in: gallery_schema.GalleryUpdate,
-    db: Session = Depends(get_db),
+    db: Session = Depends(deps.get_db),
+    current_user: models.User = Depends(deps.get_current_active_user),
 ):
-    db_gallery = gallery.get(db, id=gallery_id)
-    if db_gallery is None:
+    gallery = crud.gallery.get(db, id=gallery_id)
+    if not gallery:
         raise HTTPException(status_code=404, detail="Gallery not found")
-    db_gallery = gallery.update(db=db, db_obj=gallery, obj_in=gallery_in)
-    return db_gallery
+    return gallery
 
-
-@router.delete("/{gallery_id}", response_model=gallery_schema.Gallery)
-def delete_gallery(gallery_id: int, db: Session = Depends(get_db)):
-    db_gallery = gallery.get(db, id=gallery_id)
-    if db_gallery is None:
+@router.put("/{gallery_id}", response_model=schemas.Gallery)
+def update_gallery(
+    *,
+    db: Session = Depends(deps.get_db),
+    gallery_id: int,
+    gallery_in: schemas.GalleryUpdate,
+    current_user: models.User = Depends(deps.get_current_active_user),
+    image_ids: List[int]
+):
+    gallery = crud.gallery.get(db, id=gallery_id)
+    if not gallery:
         raise HTTPException(status_code=404, detail="Gallery not found")
-    db_gallery = gallery.remove(db=db, id=gallery_id)
-    return db_gallery
+    if not crud.user.is_superuser(current_user):
+        raise HTTPException(status_code=400, detail="Not enough permissions")
+    gallery = crud.gallery.update(db, db_obj=gallery, obj_in=gallery_in)
+    gallery = crud.gallery.update_images(db, db_obj=gallery, image_ids=image_ids)
+    return gallery
+
+@router.delete("/{gallery_id}", response_model=schemas.Gallery)
+def delete_gallery(
+    *,
+    db: Session = Depends(deps.get_db),
+    gallery_id: int,
+    current_user: models.User = Depends(deps.get_current_active_user),
+):
+    gallery = crud.gallery.get(db, id=gallery_id)
+    if not gallery:
+        raise HTTPException(status_code=404, detail="Gallery not found")
+    if not crud.user.is_superuser(current_user):
+        raise HTTPException(status_code=400, detail="Not enough permissions")
+    gallery = crud.gallery.remove(db, id=gallery_id)
+    return gallery

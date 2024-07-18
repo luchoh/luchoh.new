@@ -120,14 +120,17 @@ nav ul.menu.hide-on-med-and-down li a:link.content-signin {
     color: #fff
 }
 
-nav ul.menu.hide-on-med-and-down li a:active,nav ul.menu.hide-on-med-and-down li a:link,nav ul.menu.hide-on-med-and-down li a:visited {
+nav ul.menu.hide-on-med-and-down li a:active,
+nav ul.menu.hide-on-med-and-down li a:link,
+nav ul.menu.hide-on-med-and-down li a:visited {
     display: block;
     padding: .2em .3em;
     text-decoration: none;
     color: #b1b1b1
 }
 
-nav ul.menu.hide-on-med-and-down li a.active,nav ul.menu.hide-on-med-and-down li a:hover {
+nav ul.menu.hide-on-med-and-down li a.active,
+nav ul.menu.hide-on-med-and-down li a:hover {
     color: #fff
 }
 
