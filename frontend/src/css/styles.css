@@ -1,10 +1,15 @@
-/*Project: luchoh.com refactoring
-File: frontend/src/css/styles.css*/
-body {
+/* Project: luchoh.com refactoring
+   File: frontend/src/css/styles.css */
+
+   body {
     font-family: 'Lucida Grande', Verdana, Arial, sans-serif;
     line-height: 1em;
     font-size: 8pt;
     letter-spacing: 0.05em;
+    margin: 0;
+    padding: 0;
+    background-color: rgb(33, 33, 33);
+    color: rgba(0, 0, 0, 0.87);
 }
 
 .container, nav, footer {
@@ -13,14 +18,31 @@ body {
     letter-spacing: 0.05em;
 }
 
+.nav-wrapper {
+    padding-top: 20px;
+    padding-bottom: 10px;
+    font-size: 1.2em;
+}
+
 nav {
-    height: 98px;
+    height: auto;
     box-shadow: none;
+}
+
+.logo {
+    margin-top: 20px;
+    margin-bottom: 15px;
 }
 
 .logo img {
     width: 100px;
     height: auto;
+}
+
+.divider {
+    background-color: #333;
+    height: 1px;
+    margin: 0;
 }
 
 .menu {
@@ -32,8 +54,15 @@ nav {
     float: right;
 }
 
+.menu li {
+    display: inline-block;
+    margin-left: 10px;
+}
+
 .menu li a {
     color: #B1B1B1;
+    text-decoration: none;
+    padding: 0.2em 0.3em;
 }
 
 .menu li a:hover,
@@ -45,17 +74,30 @@ nav {
     color: white;
 }
 
-.divider {
-    background-color: #333;
-    height: 1px;
-    margin-top: 10px;
-}
-
 .banner img {
     width: 60%;
     height: auto;
     margin: 0 auto;
     display: block;
+}
+
+#gallery {
+    min-height: 100%;
+}
+
+#gallery .divider {
+    background-color: #333;
+}
+
+.image-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.image-item {
+    margin: 10px;
+    text-align: center;
 }
 
 .image-title {
@@ -67,4 +109,57 @@ nav {
 .image-description {
     font-size: 0.9em;
     color: #ccc;
+}
+
+#footer {
+    color: #B1B1B1;
+    text-align: center;
+    padding-top: 5px;
+    margin-bottom: 8px;
+}
+
+/* Materialize overrides */
+.row {
+    margin-bottom: 0;
+}
+
+.col {
+    padding: 0 11.25px;
+}
+
+@media only screen and (max-width: 992px) {
+    .nav-wrapper .side-nav {
+        font-size: 1.6rem;
+    }
+
+    .nav-wrapper .side-nav li.galleries {
+        padding-top: 2.5rem;
+        color: #ff0000;
+    }
+
+    .nav-wrapper .side-nav li.galleries .signin {
+        padding-top: 2.5rem;
+    }
+
+    .nav-wrapper .side-nav li.galleries .signin p {
+        color: #B1B1B1;
+    }
+
+    .nav-wrapper .side-nav li.galleries .signin a {
+        color: white;
+        font-size: 2rem;
+    }
+
+    .nav-wrapper .side-nav li.galleries .signin a + p {
+        padding-left: 2em;
+    }
+
+    .nav-wrapper .side-nav li li:not(:hover) a {
+        color: inherit;
+        font-size: 1.6rem;
+    }
+
+    .nav-wrapper .side-nav li li:not(:hover) a.content-signin {
+        color: #B1B1B1;
+    }
 }

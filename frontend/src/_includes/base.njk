@@ -9,19 +9,22 @@
     <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body class="grey darken-4">
-    <header>
-        {% include "partials/header.njk" %}
-    </header>
+    <div class="hiddendiv common"></div>
+    <div id="gallery" class="grey darken-4">
+        <header>
+            {% include "partials/header.njk" %}
+        </header>
 
-    <main id="gallery">
-        {{ content | safe }}
-    </main>
+        <main id="gallery">
+            {{ content | safe }}
+        </main>
 
-    <footer>
-        {% include "partials/footer.njk" %}
-    </footer>
+        <footer>
+            {% include "partials/footer.njk" %}
+        </footer>
 
-    <script src="/js/materialize.min.js"></script>
-    <script src="/js/main.js"></script>
+        <script src="/js/materialize.min.js"></script>
+        <script src="/js/main.js"></script>
+    </div>
 </body>
 </html>
