@@ -30,6 +30,7 @@ footer {
     line-height: 1em;
     font-size: 8pt;
     letter-spacing: 0.05em;
+    font-family: Lucida Grande, Verdana, Arial, Sans-Serif;
 }
 
 .container .row {
@@ -79,6 +80,76 @@ nav ul.menu.hide-on-med-and-down {
     display: inline-block;
     float: right;
     text-transform: lowercase;
+}
+
+nav ul.menu.hide-on-med-and-down {
+    margin: 0;
+    padding: 6px 0 0;
+    list-style: none;
+    font-size: 1.2em;
+    position: relative;
+    display: inline-block;
+    float: right;
+    text-transform: lowercase;
+    margin-bottom: 10px
+}
+
+nav ul.menu.hide-on-med-and-down p {
+    margin: 0;
+    padding: .2em 1em .2em .2em;
+    text-align: right;
+    display: inline-block;
+    position: static;
+    float: left
+}
+
+nav ul.menu.hide-on-med-and-down li {
+    padding: 0;
+    margin: 0;
+    color: red;
+    position: static;
+    text-align: right;
+    display: inline-block
+}
+
+nav ul.menu.hide-on-med-and-down li a:link {
+    font-size: 1em
+}
+
+nav ul.menu.hide-on-med-and-down li a:link.content-signin {
+    color: #fff
+}
+
+nav ul.menu.hide-on-med-and-down li a:active,nav ul.menu.hide-on-med-and-down li a:link,nav ul.menu.hide-on-med-and-down li a:visited {
+    display: block;
+    padding: .2em .3em;
+    text-decoration: none;
+    color: #b1b1b1
+}
+
+nav ul.menu.hide-on-med-and-down li a.active,nav ul.menu.hide-on-med-and-down li a:hover {
+    color: #fff
+}
+
+nav ul.menu.hide-on-med-and-down ul {
+    float: left
+}
+
+nav ul.menu.hide-on-med-and-down ul li {
+    z-index: 1000
+}
+
+nav ul.menu.hide-on-med-and-down ul li ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: inline-block
+}
+
+ul.menu ul ul {
+    margin-left: .2em;
+    position: relative;
+    top: 0
 }
 
 .menu li {
@@ -146,10 +217,6 @@ nav ul.menu.hide-on-med-and-down {
 }
 
 /* Materialize overrides */
-.row {
-    margin-bottom: 0;
-}
-
 .col {
     padding: 0 11.25px;
 }
