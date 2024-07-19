@@ -33,10 +33,25 @@
             <button type="submit">Upload</button>
         </form>
 
+        <h2>Create Gallery</h2>
+        <form id="gallery-form">
+            <input type="text" id="gallery-title" name="title" placeholder="Gallery Title" required>
+            <textarea id="gallery-description" name="description" placeholder="Gallery Description"></textarea>
+            <button type="submit">Create Gallery</button>
+        </form>
+
         <h2>Galleries</h2>
         <div id="galleries-list">
             <!-- Galleries will be dynamically loaded here -->
         </div>
+
+        <h2>Edit Image</h2>
+        <form id="edit-image-form" style="display:none;">
+            <input type="hidden" id="edit-image-id">
+            <input type="text" id="edit-image-title" name="title" placeholder="Image Title" required>
+            <textarea id="edit-image-description" name="description" placeholder="Image Description"></textarea>
+            <button type="submit">Update Image</button>
+        </form>
     </div>
 
     <script src="{{ url_for('static', path='/admin.js') }}"></script>

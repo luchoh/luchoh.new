@@ -5,6 +5,7 @@ from app.models.user import User
 from app.schemas.user import UserCreate
 from app.auth.security import get_password_hash, verify_password
 
+
 class CRUDUser:
     def get(self, db: Session, user_id: int):
         return db.query(User).filter(User.id == user_id).first()
@@ -37,5 +38,12 @@ class CRUDUser:
         if not verify_password(password, user.hashed_password):
             return None
         return user
+
+    def is_active(self, user: User) -> bool:
+        return user.is_active
+
+    def is_superuser(self, user: User) -> bool:
+        return user.is_superuser
+
 
 user = CRUDUser()

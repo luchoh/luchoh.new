@@ -11,3 +11,7 @@ class Token(BaseModel):
 
 class TokenPayload(BaseModel):
     sub: Optional[int] = None
+
+
+class TokenData(BaseModel):
+    email: Optional[str] = None

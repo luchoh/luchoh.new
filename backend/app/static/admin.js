@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (success) {
                 document.getElementById('loginForm').style.display = 'none';
                 document.getElementById('adminContent').style.display = 'block';
+                loadGalleries();
             } else {
                 alert('Login failed. Please check your credentials.');
             }
@@ -34,12 +35,43 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Clear the form
                 uploadForm.reset();
             } catch (error) {
-                if (error.message === 'Unauthorized') {
-                    alert('Your session has expired. Please log in again.');
-                    logout();
-                } else {
-                    alert('Failed to upload image: ' + error.message);
-                }
+                handleError(error);
+            }
+        });
+    }
+
+    // Gallery form handler
+    const galleryForm = document.getElementById('gallery-form');
+    if (galleryForm) {
+        galleryForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const title = document.getElementById('gallery-title').value;
+            const description = document.getElementById('gallery-description').value;
+            try {
+                await createGallery(title, description);
+                alert('Gallery created successfully');
+                galleryForm.reset();
+                loadGalleries();
+            } catch (error) {
+                handleError(error);
+            }
+        });
+    }
+
+    // Edit image form handler
+    const editImageForm = document.getElementById('edit-image-form');
+    if (editImageForm) {
+        editImageForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const id = document.getElementById('edit-image-id').value;
+            const title = document.getElementById('edit-image-title').value;
+            const description = document.getElementById('edit-image-description').value;
+            try {
+                await updateImage(id, title, description);
+                alert('Image updated successfully');
+                editImageForm.style.display = 'none';
+            } catch (error) {
+                handleError(error);
             }
         });
     }
@@ -92,6 +124,7 @@ async function checkLoginStatus() {
     if (isLoggedIn()) {
         document.getElementById('loginForm').style.display = 'none';
         document.getElementById('adminContent').style.display = 'block';
+        loadGalleries();
     } else {
         document.getElementById('loginForm').style.display = 'block';
         document.getElementById('adminContent').style.display = 'none';
@@ -122,4 +155,125 @@ async function uploadImage(file, name, title, description) {
     }
 
     return await response.json();
+}
+
+async function createGallery(title, description) {
+    const response = await fetch('/api/v1/galleries/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${getToken()}`
+        },
+        body: JSON.stringify({ title, description })
+    });
+
+    if (response.status === 401) {
+        throw new Error('Unauthorized');
+    }
+
+    if (!response.ok) {
+        throw new Error('Failed to create gallery');
+    }
+
+    return await response.json();
+}
+
+async function loadGalleries() {
+    if (!isLoggedIn()) return;
+
+    const response = await fetch('/api/v1/galleries/', {
+        headers: {
+            'Authorization': `Bearer ${getToken()}`
+        }
+    });
+
+    if (response.status === 401) {
+        logout();
+        return;
+    }
+
+    if (!response.ok) {
+        throw new Error('Failed to load galleries');
+    }
+
+    const galleries = await response.json();
+    const galleriesList = document.getElementById('galleries-list');
+    galleriesList.innerHTML = '';
+
+    galleries.forEach(gallery => {
+        const galleryElement = document.createElement('div');
+        galleryElement.innerHTML = `
+            <h3>${gallery.title}</h3>
+            <p>${gallery.description}</p>
+            <button onclick="editGallery(${gallery.id})">Edit</button>
+            <button onclick="deleteGallery(${gallery.id})">Delete</button>
+        `;
+        galleriesList.appendChild(galleryElement);
+    });
+}
+
+async function updateImage(id, title, description) {
+    const response = await fetch(`/api/v1/images/${id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${getToken()}`
+        },
+        body: JSON.stringify({ title, description })
+    });
+
+    if (response.status === 401) {
+        throw new Error('Unauthorized');
+    }
+
+    if (!response.ok) {
+        throw new Error('Failed to update image');
+    }
+
+    return await response.json();
+}
+
+function editImage(id, title, description) {
+    const form = document.getElementById('edit-image-form');
+    document.getElementById('edit-image-id').value = id;
+    document.getElementById('edit-image-title').value = title;
+    document.getElementById('edit-image-description').value = description;
+    form.style.display = 'block';
+}
+
+async function deleteGallery(id) {
+    if (!confirm('Are you sure you want to delete this gallery?')) return;
+
+    const response = await fetch(`/api/v1/galleries/${id}`, {
+        method: 'DELETE',
+        headers: {
+            'Authorization': `Bearer ${getToken()}`
+        }
+    });
+
+    if (response.status === 401) {
+        logout();
+        return;
+    }
+
+    if (!response.ok) {
+        throw new Error('Failed to delete gallery');
+    }
+
+    loadGalleries();
+}
+
+function handleError(error) {
+    if (error.message === 'Unauthorized') {
+        alert('Your session has expired. Please log in again.');
+        logout();
+    } else {
+        alert(error.message);
+    }
+}
+
+// Note: editGallery function is not implemented yet
+function editGallery(id) {
+    alert('Edit gallery functionality not implemented yet.');
+    // Implement the edit gallery functionality here
 }
