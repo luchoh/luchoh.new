@@ -1,54 +1,53 @@
 // Project: luchoh.com refactoring
-// File: frontend/src/js/admin.js
+// File: backend/app/static/admin.js
 
 document.addEventListener('DOMContentLoaded', function () {
-    // Existing Materialize initialization
-    var elems = document.querySelectorAll('select');
-    var instances = M.FormSelect.init(elems);
-
-    // Existing category selection functionality
-    var categorySelect = document.getElementById('category-select');
-    if (categorySelect) {
-        categorySelect.addEventListener('change', function () {
-            var selectedCategory = this.value;
-            window.location.href = '/admin/galleries/' + selectedCategory;
-        });
-    }
-
-    // New: Login form handler
+    // Login form handler
     const loginForm = document.getElementById('login-form');
     if (loginForm) {
         loginForm.addEventListener('submit', async function (e) {
             e.preventDefault();
-            const email = document.getElementById('email').value;
+            const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
-            const success = await login(email, password);
+            const success = await login(username, password);
             if (success) {
-                window.location.href = '/admin/dashboard';
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('adminContent').style.display = 'block';
             } else {
                 alert('Login failed. Please check your credentials.');
             }
         });
     }
 
-    // New: Logout button handler
-    const logoutButton = document.getElementById('logout-button');
-    if (logoutButton) {
-        logoutButton.addEventListener('click', logout);
+    // Upload form handler
+    const uploadForm = document.getElementById('upload-form');
+    if (uploadForm) {
+        uploadForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const file = document.getElementById('image-file').files[0];
+            const name = document.getElementById('image-name').value;
+            const title = document.getElementById('image-title').value;
+            const description = document.getElementById('image-description').value;
+            try {
+                await uploadImage(file, name, title, description);
+                alert('Image uploaded successfully');
+            } catch (error) {
+                alert('Failed to upload image: ' + error.message);
+            }
+        });
     }
 
-    // New: Check login status on page load
+    // Check login status on page load
     checkLoginStatus();
 });
 
-// New: Authentication functions
-async function login(email, password) {
-    const response = await fetch('/api/v1/auth/login', {
+async function login(username, password) {
+    const response = await fetch('/api/v1/auth/token', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: `username=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`,
+        body: `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`,
     });
 
     if (response.ok) {
@@ -58,11 +57,6 @@ async function login(email, password) {
     } else {
         return false;
     }
-}
-
-function logout() {
-    setToken('');
-    window.location.href = '/admin/login';
 }
 
 function setToken(token) {
@@ -78,35 +72,18 @@ function isLoggedIn() {
 }
 
 async function checkLoginStatus() {
-    if (!isLoggedIn()) {
-        window.location.href = '/admin/login';
+    if (isLoggedIn()) {
+        document.getElementById('loginForm').style.display = 'none';
+        document.getElementById('adminContent').style.display = 'block';
     }
 }
 
-// Modified: Use authenticated requests
-async function createGallery(title, description) {
-    const response = await fetch('/api/v1/galleries/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${getToken()}`
-        },
-        body: JSON.stringify({ title, description }),
-    });
-
-    if (response.ok) {
-        const newGallery = await response.json();
-        return newGallery;
-    } else {
-        throw new Error('Failed to create gallery');
-    }
-}
-
-// Modified: Use authenticated requests
-async function uploadImage(file, galleryId) {
+async function uploadImage(file, name, title, description) {
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('gallery_id', galleryId);
+    formData.append('name', name);
+    formData.append('title', title);
+    formData.append('description', description);
 
     const response = await fetch('/api/v1/images/upload/', {
         method: 'POST',
@@ -116,10 +93,9 @@ async function uploadImage(file, galleryId) {
         body: formData,
     });
 
-    if (response.ok) {
-        const newImage = await response.json();
-        return newImage;
-    } else {
+    if (!response.ok) {
         throw new Error('Failed to upload image');
     }
+
+    return await response.json();
 }
