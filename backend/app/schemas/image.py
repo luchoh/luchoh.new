@@ -8,7 +8,7 @@ from datetime import datetime
 class ImageBase(BaseModel):
     title: str
     description: Optional[str] = None
-    url: str
+    file_path: str
     thumbnail_url: Optional[str] = None
 
 
@@ -22,9 +22,8 @@ class ImageUpdate(ImageBase):
 
 class ImageInDBBase(ImageBase):
     id: int
-    owner_id: int
-    created_at: datetime
-    updated_at: datetime
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True
