@@ -1,7 +1,8 @@
 # Project: luchoh.com refactoring
 # File: backend/app/schemas/token.py
-from typing import Optional
+from typing import Optional, Union
 from pydantic import BaseModel
+from datetime import datetime
 
 
 class Token(BaseModel):
@@ -10,7 +11,8 @@ class Token(BaseModel):
 
 
 class TokenPayload(BaseModel):
-    sub: Optional[int] = None
+    sub: Union[int, str]
+    exp: datetime
 
 
 class TokenData(BaseModel):

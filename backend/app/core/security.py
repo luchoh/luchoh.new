@@ -1,4 +1,7 @@
-from datetime import datetime, timedelta
+# Project: luchoh.com refactoring
+# File: app/core/security.py
+
+from datetime import datetime, timedelta, timezone
 from typing import Any, Union, Dict
 
 from jose import jwt
@@ -12,17 +15,18 @@ ALGORITHM = "HS256"
 
 
 def create_access_token(
-    subject: Union[Dict[str, Any], Any], expires_delta: timedelta = None
+    subject: Union[str, Any], expires_delta: timedelta = None
 ) -> str:
     if expires_delta:
-        expire = datetime.utcnow() + expires_delta
+        expire = datetime.now(timezone.utc) + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(
+        expire = datetime.now(timezone.utc) + timedelta(
             minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
         )
-    to_encode = subject.copy() if isinstance(subject, Dict) else {"sub": str(subject)}
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=ALGORITHM)
+    to_encode = {"exp": expire, "sub": str(subject)}
+    encoded_jwt = jwt.encode(
+        to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM
+    )
     return encoded_jwt
 
 

@@ -1,6 +1,7 @@
 # Project: luchoh.com refactoring
 # File: backend/app/auth/auth.py
 from datetime import datetime, timedelta
+from typing import Union
 from jose import JWTError, jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
@@ -10,6 +11,7 @@ from app.db.session import get_db
 from app.core.config import settings
 from sqlalchemy.orm import Session
 from app.auth.security import verify_password
+from app.core.security import create_access_token
 
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
@@ -23,18 +25,6 @@ def authenticate_user(db: Session, username: str, password: str):
     if not verify_password(password, user.hashed_password):
         return False
     return user
-
-
-def create_access_token(data: dict, expires_delta: timedelta | None = None):
-    to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.utcnow() + expires_delta
-    else:
-        expire = datetime.utcnow() + timedelta(minutes=15)
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
-    return encoded_jwt
-
 
 async def get_current_user(
     token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)

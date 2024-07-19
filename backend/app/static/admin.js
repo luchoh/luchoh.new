@@ -100,6 +100,7 @@ async function login(username, password) {
 
 function setToken(token) {
     localStorage.setItem('token', token);
+    console.log('Token set:', token);
 }
 
 function getToken() {
@@ -180,6 +181,7 @@ async function createGallery(title, description) {
 
 async function loadGalleries() {
     if (!isLoggedIn()) return;
+    console.log('Current token:', getToken());
 
     const response = await fetch('/api/v1/galleries/', {
         headers: {

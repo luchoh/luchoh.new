@@ -7,7 +7,7 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, Body
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from app.auth.auth import create_access_token
+from app.core.security import create_access_token
 from app.db.session import get_db
 from app.crud.user import user as user_crud
 
@@ -22,7 +22,6 @@ from app.utils import (
     send_reset_password_email,
     verify_password_reset_token,
 )
-
 
 
 router = APIRouter()
@@ -44,8 +43,8 @@ def login_access_token(
         raise HTTPException(status_code=400, detail="Inactive user")
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     return {
-        "access_token": security.create_access_token(
-            {"user_id": user.id}, expires_delta=access_token_expires
+        "access_token": create_access_token(
+            user.id, expires_delta=access_token_expires
         ),
         "token_type": "bearer",
     }
@@ -120,7 +119,10 @@ async def login_for_access_token(
         )
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": db_user.email}, expires_delta=access_token_expires
+        subject=db_user.id,  # Changed from data to subject
+        expires_delta=access_token_expires,
     )
+
+    return {"access_token": access_token, "token_type": "bearer"}
 
     return {"access_token": access_token, "token_type": "bearer"}

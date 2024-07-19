@@ -1,6 +1,8 @@
 # Project: luchoh.com refactoring
 # File: backend/app/api/deps.py
 
+from datetime import datetime, timezone
+
 from typing import Generator, Optional
 
 from fastapi import Depends, HTTPException, status
@@ -34,15 +36,22 @@ def get_current_user(
         payload = jwt.decode(
             token, settings.SECRET_KEY, algorithms=[security.ALGORITHM]
         )
-        token_data = schemas.TokenData(email=payload.get("sub"))
+        token_data = schemas.TokenPayload(**payload)
+        if token_data.exp < datetime.now(timezone.utc):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token has expired",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
     except (jwt.JWTError, ValidationError):
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
+            status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
         )
-    user = crud.user.get_by_email(db, email=token_data.email)
+    user = crud.user.get(db, user_id=token_data.sub)  # Changed 'id' to 'user_id'
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return user
 
 
