@@ -6,11 +6,6 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from app.api.api import api_router
 from app.core.config import settings
-# from app.db.session import engine
-# from app.models import base, user, image, gallery
-
-# Create tables
-# base.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="LuchoH Photography API", openapi_url=f"{settings.API_V1_STR}/openapi.json"

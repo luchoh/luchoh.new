@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 document.getElementById('loginForm').style.display = 'none';
                 document.getElementById('adminContent').style.display = 'block';
                 loadGalleries();
+                loadImages();
             } else {
                 alert('Login failed. Please check your credentials.');
             }
@@ -126,6 +127,7 @@ async function checkLoginStatus() {
         document.getElementById('loginForm').style.display = 'none';
         document.getElementById('adminContent').style.display = 'block';
         loadGalleries();
+        loadImages();
     } else {
         document.getElementById('loginForm').style.display = 'block';
         document.getElementById('adminContent').style.display = 'none';
@@ -214,6 +216,41 @@ async function loadGalleries() {
     });
 }
 
+async function loadImages() {
+    if (!isLoggedIn()) return;
+    console.log('Current token:', getToken());
+
+    const response = await fetch('/api/v1/images/', {
+        headers: {
+            'Authorization': `Bearer ${getToken()}`
+        }
+    });
+
+    if (response.status === 401) {
+        logout();
+        return;
+    }
+
+    if (!response.ok) {
+        throw new Error('Failed to load galleries');
+    }
+
+    const images = await response.json();
+    const imagesList = document.getElementById('images-list');
+    imagesList.innerHTML = '';
+
+    images.forEach(image => {
+        const imageElement = document.createElement('div');
+        imageElement.innerHTML = `
+            <h3>${image.title}</h3>
+            <p>${image.description}</p>
+            <button onclick="editImage(${image.id})">Edit</button>
+            <button onclick="deleteImage(${image.id})">Delete</button>
+        `;
+        imagesList.appendChild(imageElement);
+    });
+}
+
 async function updateImage(id, title, description) {
     const response = await fetch(`/api/v1/images/${id}`, {
         method: 'PUT',
@@ -263,6 +300,28 @@ async function deleteGallery(id) {
     }
 
     loadGalleries();
+}
+
+async function deleteImage(id) {
+    if (!confirm('Are you sure you want to delete this image?')) return;
+
+    const response = await fetch(`/api/v1/images/${id}`, {
+        method: 'DELETE',
+        headers: {
+            'Authorization': `Bearer ${getToken()}`
+        }
+    });
+
+    if (response.status === 401) {
+        logout();
+        return;
+    }
+
+    if (!response.ok) {
+        throw new Error('Failed to delete image');
+    }
+
+    loadImages();
 }
 
 function handleError(error) {
