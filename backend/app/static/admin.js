@@ -31,8 +31,15 @@ document.addEventListener('DOMContentLoaded', function () {
             try {
                 await uploadImage(file, name, title, description);
                 alert('Image uploaded successfully');
+                // Clear the form
+                uploadForm.reset();
             } catch (error) {
-                alert('Failed to upload image: ' + error.message);
+                if (error.message === 'Unauthorized') {
+                    alert('Your session has expired. Please log in again.');
+                    logout();
+                } else {
+                    alert('Failed to upload image: ' + error.message);
+                }
             }
         });
     }
@@ -67,14 +74,27 @@ function getToken() {
     return localStorage.getItem('token');
 }
 
+function removeToken() {
+    localStorage.removeItem('token');
+}
+
 function isLoggedIn() {
     return !!getToken();
+}
+
+function logout() {
+    removeToken();
+    document.getElementById('loginForm').style.display = 'block';
+    document.getElementById('adminContent').style.display = 'none';
 }
 
 async function checkLoginStatus() {
     if (isLoggedIn()) {
         document.getElementById('loginForm').style.display = 'none';
         document.getElementById('adminContent').style.display = 'block';
+    } else {
+        document.getElementById('loginForm').style.display = 'block';
+        document.getElementById('adminContent').style.display = 'none';
     }
 }
 
@@ -92,6 +112,10 @@ async function uploadImage(file, name, title, description) {
         },
         body: formData,
     });
+
+    if (response.status === 401) {
+        throw new Error('Unauthorized');
+    }
 
     if (!response.ok) {
         throw new Error('Failed to upload image');
