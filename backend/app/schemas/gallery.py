@@ -5,15 +5,19 @@ from pydantic import BaseModel
 from typing import List, Optional
 from .image import Image
 
+
 class GalleryBase(BaseModel):
     title: str
     description: Optional[str] = None
 
+
 class GalleryCreate(GalleryBase):
     pass
 
+
 class GalleryUpdate(GalleryBase):
     pass
+
 
 class Gallery(GalleryBase):
     id: int

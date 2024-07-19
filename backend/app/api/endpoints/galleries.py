@@ -8,18 +8,19 @@ from app.api import deps
 
 router = APIRouter()
 
+
 @router.post("/", response_model=schemas.Gallery)
 def create_gallery(
     *,
     db: Session = Depends(deps.get_db),
     gallery_in: schemas.GalleryCreate,
     current_user: models.User = Depends(deps.get_current_active_user),
-    image_ids: List[int]
 ):
     if not crud.user.is_superuser(current_user):
-        raise HTTPException(status_code=400, detail="Not enough permissions")
-    gallery = crud.gallery.create_with_images(db=db, obj_in=gallery_in, image_ids=image_ids)
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+    gallery = crud.gallery.create(db=db, obj_in=gallery_in)
     return gallery
+
 
 @router.get("/", response_model=List[schemas.Gallery])
 def read_galleries(
@@ -30,6 +31,7 @@ def read_galleries(
 ):
     galleries = crud.gallery.get_multi(db, skip=skip, limit=limit)
     return galleries
+
 
 @router.get("/{gallery_id}", response_model=schemas.Gallery)
 def read_gallery(
@@ -42,6 +44,7 @@ def read_gallery(
         raise HTTPException(status_code=404, detail="Gallery not found")
     return gallery
 
+
 @router.put("/{gallery_id}", response_model=schemas.Gallery)
 def update_gallery(
     *,
@@ -49,7 +52,6 @@ def update_gallery(
     gallery_id: int,
     gallery_in: schemas.GalleryUpdate,
     current_user: models.User = Depends(deps.get_current_active_user),
-    image_ids: List[int]
 ):
     gallery = crud.gallery.get(db, id=gallery_id)
     if not gallery:
@@ -57,8 +59,8 @@ def update_gallery(
     if not crud.user.is_superuser(current_user):
         raise HTTPException(status_code=400, detail="Not enough permissions")
     gallery = crud.gallery.update(db, db_obj=gallery, obj_in=gallery_in)
-    gallery = crud.gallery.update_images(db, db_obj=gallery, image_ids=image_ids)
     return gallery
+
 
 @router.delete("/{gallery_id}", response_model=schemas.Gallery)
 def delete_gallery(
