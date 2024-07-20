@@ -8,14 +8,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}">
+    <link rel="stylesheet" href="/static/styles.css">
+    <script type="module" src="/static/js/admin.js"></script>
 </head>
 
 <body>
     <h1>Admin Dashboard</h1>
 
     <div id="loginForm">
-        <h2>Login</h2>
         <form id="login-form">
             <input type="text" id="username" name="username" placeholder="Username or Email" required>
             <input type="password" id="password" name="password" placeholder="Password" required>
@@ -24,6 +24,8 @@
     </div>
 
     <div id="adminContent" style="display:none;">
+        <button id="logoutButton">Logout</button>
+
         <h2>Upload Image</h2>
         <form id="upload-form" enctype="multipart/form-data">
             <input type="file" id="image-file" name="file" accept="image/*" required>
@@ -47,7 +49,7 @@
 
         <h2>Images</h2>
         <div id="images-list">
-            <!-- Galleries will be dynamically loaded here -->
+            <!-- Images will be dynamically loaded here -->
         </div>
 
         <h2>Edit Image</h2>
@@ -59,7 +61,6 @@
         </form>
     </div>
 
-    <script src="{{ url_for('static', path='/admin.js') }}"></script>
 </body>
 
 </html>
