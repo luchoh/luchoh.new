@@ -1,11 +1,15 @@
 # Project: luchoh.com refactoring
 # File: backend/app/main.py
 import os
+import logging
 from fastapi import FastAPI, Request
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from app.api.api import api_router
 from app.core.config import settings
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = FastAPI(
     title="LuchoH Photography API", openapi_url=f"{settings.API_V1_STR}/openapi.json"

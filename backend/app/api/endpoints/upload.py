@@ -1,9 +1,12 @@
 # Project: luchoh.com refactoring
 # File: backend/app/api/endpoints/upload.py
-import os
+
 from fastapi import APIRouter, UploadFile, File, Depends, HTTPException
-from app.auth.auth import get_current_active_user
+from sqlalchemy.orm import Session
+from app.api import deps
 from app.models.user import User
+from app import crud
+import os
 import uuid
 import shutil
 
@@ -22,9 +25,11 @@ def is_file_extension_allowed(filename):
 
 @router.post("/uploadfile/")
 async def create_upload_file(
-    file: UploadFile = File(...), current_user: User = Depends(get_current_active_user)
+    file: UploadFile = File(...),
+    db: Session = Depends(deps.get_db),
+    current_user: User = Depends(deps.get_current_active_user),
 ):
-    if not current_user.is_superuser:
+    if not crud.user.is_superuser(current_user):
         raise HTTPException(status_code=403, detail="Not enough permissions")
 
     if not is_file_extension_allowed(file.filename):

@@ -1,14 +1,13 @@
 # Project: luchoh.com refactoring
 # File: backend/app/schemas/image.py
 from typing import Optional
-from pydantic import BaseModel
-from datetime import datetime
+from pydantic import BaseModel, Field
 
 
 class ImageBase(BaseModel):
-    title: str
+    title: str = Field(..., min_length=1)
     description: Optional[str] = None
-    file_path: str
+    file_path: str = Field(..., min_length=1)
     thumbnail_url: Optional[str] = None
 
 
@@ -17,13 +16,14 @@ class ImageCreate(ImageBase):
 
 
 class ImageUpdate(ImageBase):
-    pass
+    title: Optional[str] = None
+    description: Optional[str] = None
+    file_path: Optional[str] = None
+    # thumbnail_url: Optional[str] = None
 
 
 class ImageInDBBase(ImageBase):
     id: int
-    created_at: Optional[datetime] = None
-    updated_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True

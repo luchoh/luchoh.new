@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const title = document.getElementById('image-title').value;
             const description = document.getElementById('image-description').value;
             try {
-                await uploadImage(file, name, title, description);
+                await createImage(file, name, title, description);
                 alert('Image uploaded successfully');
                 // Clear the form
                 uploadForm.reset();
@@ -137,11 +137,8 @@ async function checkLoginStatus() {
 async function uploadImage(file, name, title, description) {
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('name', name);
-    formData.append('title', title);
-    formData.append('description', description);
 
-    const response = await fetch('/api/v1/images/upload/', {
+    const uploadResponse = await fetch('/api/v1/upload/uploadfile/', {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${getToken()}`
@@ -149,16 +146,27 @@ async function uploadImage(file, name, title, description) {
         body: formData,
     });
 
-    if (response.status === 401) {
+    if (uploadResponse.status === 401) {
         throw new Error('Unauthorized');
     }
 
-    if (!response.ok) {
-        throw new Error('Failed to upload image');
+    if (!uploadResponse.ok) {
+        throw new Error('Failed to upload image file');
     }
 
-    return await response.json();
+    const uploadResult = await uploadResponse.json();
+    console.log('Upload result:', uploadResult);  // Debug log
+
+    if (!uploadResult.file_path) {
+        console.error('Upload result does not contain file_path');
+        throw new Error('Upload result does not contain file_path');
+    }
+
+    // Now create the image record
+    return createImage(uploadResult.file_path, title, description);
 }
+
+
 
 async function createGallery(title, description) {
     const response = await fetch('/api/v1/galleries/', {
@@ -179,6 +187,55 @@ async function createGallery(title, description) {
     }
 
     return await response.json();
+}
+
+async function createImage(file, title, description) {
+    const token = getToken();
+
+    // First, upload the file
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const uploadResponse = await fetch('/api/v1/upload/uploadfile/', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        },
+        body: formData
+    });
+
+    if (!uploadResponse.ok) {
+        const errorData = await uploadResponse.json();
+        throw new Error(`Failed to upload file: ${JSON.stringify(errorData)}`);
+    }
+
+    const uploadResult = await uploadResponse.json();
+    console.log('Upload result:', uploadResult);  // Debug log
+
+    // Now create the image record
+    const imageData = {
+        file_path: uploadResult.file_path,
+        title: title,
+        description: description
+    };
+
+    const createResponse = await fetch('/api/v1/images/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${getToken()}`
+        },
+        body: JSON.stringify(imageData)
+    });
+
+    if (!createResponse.ok) {
+        const errorData = await createResponse.json();
+        throw new Error(`Failed to create image record: ${JSON.stringify(errorData)}`);
+    }
+
+    const responseData = await createResponse.json();
+    console.log('Response data:', responseData);  // Debug log
+    return responseData;
 }
 
 async function loadGalleries() {
@@ -269,6 +326,7 @@ async function updateImage(id, title, description) {
         throw new Error('Failed to update image');
     }
 
+    loadImages();  // Reload images after update
     return await response.json();
 }
 
