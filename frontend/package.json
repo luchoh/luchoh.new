@@ -2,20 +2,22 @@
   "name": "luchoh.com frontend",
   "version": "1.0.0",
   "description": "luchoH Galleries",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "start": "eleventy --serve",
+    "start": "nodemon server.js",
     "build": "eleventy"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@11ty/eleventy": "^2.0.1"
+    "nodemon": "^2.0.22"
   },
   "dependencies": {
+    "express": "^4.19.2",
     "luxon": "^3.4.4",
     "materialize-css": "^1.0.0",
-    "node-fetch": "^2.7.0"
+    "node-fetch": "^2.7.0",
+    "nunjucks": "^3.2.4"
   }
 }

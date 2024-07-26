@@ -2,7 +2,7 @@
 
 {
   # https://devenv.sh/basics/
-  env.GREET = "luchoh-back";
+  env.GREET = "luchoh-backend";
 
   # https://devenv.sh/packages/
   packages = [ pkgs.git pkgs.poetry pkgs.pkg-config ];

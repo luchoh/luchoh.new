@@ -15,14 +15,20 @@
             {% include "partials/header.njk" %}
         </header>
 
-        {{ content | safe }}
+        <div class="container grey darken-4">
+            {% include "partials/sticky.njk" %}
+        </div>
+
+        <div class="container grey darken-4" itemscope itemtype="http://schema.org/ImageGallery">
+            {{ content | safe }}
+        </div>
 
         <footer>
             {% include "partials/footer.njk" %}
         </footer>
-
-        <script src="/js/materialize.min.js"></script>
-        <script src="/js/main.js"></script>
     </div>
+
+    <script src="/js/materialize.min.js"></script>
+    <script src="/js/main.js"></script>
 </body>
 </html>

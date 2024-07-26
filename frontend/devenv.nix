@@ -13,7 +13,7 @@
   enterShell = ''
     hello
     git --version
-    npm serve
+    npm start
   '';
 
   # https://devenv.sh/tests/

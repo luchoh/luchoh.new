@@ -1,8 +1,7 @@
----
-layout: base.njk
----
 {# Project: luchoh.com refactoring # File: frontend/src/index.njk #}
+{% extends "base.njk" %}
 
+{% block content %}
 <div class="container grey darken-4">
     {% include "partials/sticky.njk" %}
 
@@ -28,3 +27,4 @@ layout: base.njk
 {% if images.length === 0 %}
 <p>No images found. Please make sure your API is running and returning data.</p>
 {% endif %}
+{% endblock %}

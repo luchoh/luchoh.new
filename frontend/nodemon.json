@@ -1,0 +1,7 @@
+{
+  "watch": [
+    "server.js",
+    "src/**/*.njk"
+  ],
+  "ext": "js,json,njk"
+}
