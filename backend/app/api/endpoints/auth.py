@@ -17,7 +17,7 @@ from app.schemas.user import UserCreate, User as UserSchema
 from app.schemas.token import Token as TokenSchema
 from app.core import security
 from app.core.config import settings
-from app.utils import (
+from app.utils.auth import (
     generate_password_reset_token,
     send_reset_password_email,
     verify_password_reset_token,

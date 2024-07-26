@@ -6,6 +6,8 @@ from sqlalchemy.orm import Session
 from app.api import deps
 from app.models.user import User
 from app import crud
+from app.core.config import settings
+from app.utils.file import generate_file_path
 import os
 import uuid
 import shutil
@@ -38,11 +40,7 @@ async def create_upload_file(
     # Ensure the upload directory exists
     os.makedirs(settings.UPLOAD_DIRECTORY, exist_ok=True)
 
-    # Generate a unique filename
-    file_extension = os.path.splitext(file.filename)[1]
-    unique_filename = f"{uuid.uuid4()}{file_extension}"
-    relative_file_path = f"uploads/{unique_filename}"
-    file_location = os.path.join(settings.UPLOAD_DIRECTORY, unique_filename)
+    relative_file_path, file_location = generate_file_path(file.filename)
 
     try:
         with open(file_location, "wb+") as file_object:
@@ -55,7 +53,7 @@ async def create_upload_file(
     return {
         "message": "File uploaded successfully",
         "original_filename": file.filename,
-        "saved_filename": unique_filename,
+        "saved_filename": os.path.basename(file_location),
         "file_path": relative_file_path,
         "file_size": file_size,
     }

@@ -8,6 +8,8 @@ from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.auth.auth import get_current_active_user
 from app.models.user import User
+from app.utils.file import generate_file_path
+
 # from app.schemas.image import
 from app.api import deps
 from app import crud, models, schemas
@@ -150,15 +152,13 @@ async def create_thumbnail(
         cropped_img.thumbnail(thumbnail_size)
 
         # Save the thumbnail
-        thumbnail_filename = f"thumbnail_{os.path.basename(image.file_path)}"
-        thumbnail_path = os.path.join(settings.UPLOAD_DIRECTORY, thumbnail_filename)
-        full_thumbnail_path = os.path.join(
-            settings.UPLOAD_DIRECTORY, thumbnail_filename
+        relative_thumbnail_path, full_thumbnail_path = generate_file_path(
+            os.path.basename(image.file_path), prefix="thumbnail_"
         )
         cropped_img.save(full_thumbnail_path)
 
         # Update the image record
-        image.thumbnail_url = thumbnail_path
+        image.thumbnail_url = relative_thumbnail_path
         db.add(image)
         db.commit()
         db.refresh(image)

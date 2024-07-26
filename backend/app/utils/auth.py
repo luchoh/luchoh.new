@@ -1,5 +1,5 @@
 # Project: luchoh.com refactoring
-# File: backend/app/utils.py
+# File: backend/app/utils/auth.py
 from typing import Any, Dict, Optional
 from datetime import datetime, timedelta
 
