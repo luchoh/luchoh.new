@@ -8,9 +8,12 @@ from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.auth.auth import get_current_active_user
 from app.models.user import User
+# from app.schemas.image import
 from app.api import deps
 from app import crud, models, schemas
 from PIL import Image as PILImage
+
+from app.core.config import settings
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -122,13 +125,23 @@ async def create_thumbnail(
 
     # Open the image
     with PILImage.open(image.file_path) as img:
+        # Apply rotation if needed
+        if crop_data.rotate != 0:
+            img = img.rotate(-crop_data.rotate, expand=True)
+
+        # Apply scaling if needed
+        if crop_data.scaleX != 1 or crop_data.scaleY != 1:
+            new_width = int(img.width * crop_data.scaleX)
+            new_height = int(img.height * crop_data.scaleY)
+            img = img.resize((new_width, new_height))
+
         # Crop the image
         cropped_img = img.crop(
             (
-                crop_data.x,
-                crop_data.y,
-                crop_data.x + crop_data.width,
-                crop_data.y + crop_data.height,
+                int(crop_data.x),
+                int(crop_data.y),
+                int(crop_data.x + crop_data.width),
+                int(crop_data.y + crop_data.height),
             )
         )
 
@@ -137,13 +150,17 @@ async def create_thumbnail(
         cropped_img.thumbnail(thumbnail_size)
 
         # Save the thumbnail
-        thumbnail_path = f"/thumbnails/{os.path.basename(image.file_path)}"
-        full_thumbnail_path = os.path.join(settings.UPLOAD_DIRECTORY, thumbnail_path)
-        os.makedirs(os.path.dirname(full_thumbnail_path), exist_ok=True)
+        thumbnail_filename = f"thumbnail_{os.path.basename(image.file_path)}"
+        thumbnail_path = os.path.join(settings.UPLOAD_DIRECTORY, thumbnail_filename)
+        full_thumbnail_path = os.path.join(
+            settings.UPLOAD_DIRECTORY, thumbnail_filename
+        )
         cropped_img.save(full_thumbnail_path)
 
         # Update the image record
         image.thumbnail_url = thumbnail_path
+        db.add(image)
         db.commit()
+        db.refresh(image)
 
     return image

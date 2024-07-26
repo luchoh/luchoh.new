@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     FIRST_SUPERUSER: str = "admin@example.com"
     FIRST_SUPERUSER_PASSWORD: str = "changethis"
 
-    UPLOAD_DIRECTORY: str = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "./uploads")
+    UPLOAD_DIRECTORY: str = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "../uploads")
 
     model_config = SettingsConfigDict(env_file=".env", case_sensitive=True)
 

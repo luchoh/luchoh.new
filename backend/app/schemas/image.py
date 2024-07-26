@@ -38,7 +38,10 @@ class ImageInDB(ImageInDBBase):
 
 
 class CropData(BaseModel):
-    x: int
-    y: int
-    width: int
-    height: int
+    x: float
+    y: float
+    width: float
+    height: float
+    rotate: float
+    scaleX: float
+    scaleY: float
