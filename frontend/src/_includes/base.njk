@@ -19,8 +19,9 @@
             {% include "partials/sticky.njk" %}
         </div>
 
-        <div class="container grey darken-4" itemscope itemtype="http://schema.org/ImageGallery">
-            {{ content | safe }}
+        <div class="container grey darken-4">
+            {% block content %}
+            {% endblock %}
         </div>
 
         <footer>

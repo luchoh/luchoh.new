@@ -1,5 +1,7 @@
 # Project: luchoh.com refactoring
 # File: backend/app/core/config.py
+
+import os
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import List
 
@@ -23,6 +25,8 @@ class Settings(BaseSettings):
     # Superuser settings
     FIRST_SUPERUSER: str = "admin@example.com"
     FIRST_SUPERUSER_PASSWORD: str = "changethis"
+
+    UPLOAD_DIRECTORY: str = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "./uploads")
 
     model_config = SettingsConfigDict(env_file=".env", case_sensitive=True)
 

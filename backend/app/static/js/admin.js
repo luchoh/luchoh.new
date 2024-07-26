@@ -6,6 +6,8 @@ import * as gallery from './gallery.js';
 import * as image from './image.js';
 import { handleError } from './utils.js';
 
+let cropper;
+
 async function initializeAdmin() {
     console.log('Initializing admin page');
     setupLoginForm();
@@ -35,7 +37,6 @@ async function loadAdminData() {
 
 function setupLoginForm() {
     const loginForm = document.getElementById('login-form');
-    console.log('Login form:', loginForm);
     if (loginForm) {
         loginForm.addEventListener('submit', handleLogin);
     } else {
@@ -111,6 +112,10 @@ function setupEditImageForm() {
     if (editImageForm) {
         editImageForm.addEventListener('submit', handleImageEdit);
     }
+    const applyCropButton = document.getElementById('apply-crop');
+    if (applyCropButton) {
+        applyCropButton.addEventListener('click', handleApplyCrop);
+    }
 }
 
 async function handleImageEdit(e) {
@@ -121,8 +126,19 @@ async function handleImageEdit(e) {
     try {
         await image.updateImage(id, title, description);
         alert('Image updated successfully');
-        e.target.style.display = 'none';
+        document.getElementById('edit-image-section').style.display = 'none';
         await image.loadImages();
+    } catch (error) {
+        handleError(error);
+    }
+}
+
+async function handleApplyCrop() {
+    const imageId = document.getElementById('edit-image-id').value;
+    const cropData = cropper.getData();
+    try {
+        await image.createThumbnail(imageId, cropData);
+        alert('Thumbnail created/updated successfully');
     } catch (error) {
         handleError(error);
     }
@@ -135,25 +151,20 @@ function setupLogoutButton() {
     }
 }
 
-// These functions need to be global to be called from inline event handlers
-window.editGallery = gallery.editGallery;
-window.deleteGallery = async (id) => {
-    if (confirm('Are you sure you want to delete this gallery?')) {
-        try {
-            await gallery.deleteGallery(id);
-            await gallery.loadGalleries();
-        } catch (error) {
-            handleError(error);
-        }
-    }
-};
-
-window.editImage = (id, title, description) => {
-    const form = document.getElementById('edit-image-form');
+window.editImage = (id, title, description, imageSrc) => {
+    document.getElementById('edit-image-section').style.display = 'block';
     document.getElementById('edit-image-id').value = id;
     document.getElementById('edit-image-title').value = title;
     document.getElementById('edit-image-description').value = description;
-    form.style.display = 'block';
+    document.getElementById('image-to-crop').src = imageSrc;
+    
+    if (cropper) {
+        cropper.destroy();
+    }
+    cropper = new Cropper(document.getElementById('image-to-crop'), {
+        aspectRatio: 1,
+        viewMode: 1,
+    });
 };
 
 window.deleteImage = async (id) => {

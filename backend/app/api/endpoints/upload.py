@@ -36,12 +36,13 @@ async def create_upload_file(
         raise HTTPException(status_code=400, detail="File extension not allowed")
 
     # Ensure the upload directory exists
-    os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)
+    os.makedirs(settings.UPLOAD_DIRECTORY, exist_ok=True)
 
     # Generate a unique filename
     file_extension = os.path.splitext(file.filename)[1]
     unique_filename = f"{uuid.uuid4()}{file_extension}"
-    file_location = os.path.join(UPLOAD_DIRECTORY, unique_filename)
+    relative_file_path = f"uploads/{unique_filename}"
+    file_location = os.path.join(settings.UPLOAD_DIRECTORY, unique_filename)
 
     try:
         with open(file_location, "wb+") as file_object:
@@ -55,7 +56,6 @@ async def create_upload_file(
         "message": "File uploaded successfully",
         "original_filename": file.filename,
         "saved_filename": unique_filename,
-        "file_path": file_location,
+        "file_path": relative_file_path,
         "file_size": file_size,
-        "upload_directory": UPLOAD_DIRECTORY,
     }

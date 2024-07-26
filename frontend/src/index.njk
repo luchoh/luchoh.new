@@ -2,29 +2,25 @@
 {% extends "base.njk" %}
 
 {% block content %}
-<div class="container grey darken-4">
-    {% include "partials/sticky.njk" %}
-
-    <div class="container grey darken-4" itemscope itemtype="http://schema.org/ImageGallery">
-        <div class="row">
-            <div class="col s12 center-align">
-                <div class="row">
-                    <div id="latest-photos" class="col s12 center-align">
-                        <div class="image-grid">
-                            {% for image in images %}
-                            <div class="col s12 l3 m6 featured-photo">
-                                {% include "partials/image.njk" %}
-                            </div>
-                            {% endfor %}
+<div itemscope itemtype="http://schema.org/ImageGallery">
+    <div class="row">
+        <div class="col s12 center-align">
+            <div class="row">
+                <div id="latest-photos" class="col s12 center-align">
+                    <div class="image-grid">
+                        {% for image in images %}
+                        <div class="col s12 l3 m6 featured-photo">
+                            {% include "partials/image.njk" %}
                         </div>
+                        {% endfor %}
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-{% if images.length === 0 %}
-<p>No images found. Please make sure your API is running and returning data.</p>
-{% endif %}
+    {% if images.length === 0 %}
+    <p>No images found. Please make sure your API is running and returning data.</p>
+    {% endif %}
+</div>
 {% endblock %}

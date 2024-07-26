@@ -39,6 +39,9 @@ templates = Jinja2Templates(directory=os.path.join(current_dir, "templates"))
 static_dir = os.path.join(current_dir, "static")
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
+uploads_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../uploads")
+app.mount("/uploads", StaticFiles(directory=uploads_dir), name="uploads")
+
 
 @app.get("/")
 async def root():

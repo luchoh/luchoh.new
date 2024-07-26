@@ -41,6 +41,9 @@ app.get('/', async (req, res) => {
         const imagesResponse = await fetch('http://localhost:8000/api/v1/images/');
         const images = await imagesResponse.json();
 
+        console.log(galleries);
+        console.log(images);
+
         res.render('index.njk', { 
             galleries, 
             images,

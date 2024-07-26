@@ -35,3 +35,10 @@ class Image(ImageInDBBase):
 
 class ImageInDB(ImageInDBBase):
     pass
+
+
+class CropData(BaseModel):
+    x: int
+    y: int
+    width: int
+    height: int

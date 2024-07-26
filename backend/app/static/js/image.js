@@ -119,7 +119,9 @@ export async function loadImages() {
             imageElement.innerHTML = `
                 <h3>${img.title}</h3>
                 <p>${img.description}</p>
-                <button onclick="editImage(${img.id}, '${img.title}', '${img.description}')">Edit</button>
+                <img src="${img.file_path}" alt="${img.title}" style="max-width: 200px;">
+                <img id="thumbnail-${img.id}" src="${img.thumbnail_url || img.file_path}" alt="Thumbnail" style="max-width: 100px;">
+                <button onclick="editImage(${img.id}, '${img.title}', '${img.description}', '${img.file_path}')">Edit</button>
                 <button onclick="deleteImage(${img.id})">Delete</button>
             `;
             imagesList.appendChild(imageElement);
@@ -128,4 +130,25 @@ export async function loadImages() {
     } catch (error) {
         handleError(error);
     }
+}
+
+export async function createThumbnail(imageId, cropData) {
+    const response = await fetch(`/api/v1/images/${imageId}/thumbnail`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${getToken()}`
+        },
+        body: JSON.stringify(cropData)
+    });
+
+    if (response.status === 401) {
+        throw new Error('Unauthorized');
+    }
+
+    if (!response.ok) {
+        throw new Error('Failed to create thumbnail');
+    }
+
+    return await response.json();
 }
