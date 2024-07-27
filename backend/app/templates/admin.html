@@ -1,68 +1,164 @@
 <!-- Project: luchoh.com refactoring -->
 <!-- File: backend/app/templates/admin.html -->
-
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="/static/styles.css">
+    <title>LuchoH Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/admin.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
 </head>
 
 <body>
-    <div id="loginForm">
-        <h2>Login</h2>
-        <form id="login-form">
-            <input type="text" id="username" placeholder="Username" required>
-            <input type="password" id="password" placeholder="Password" required>
-            <button type="submit">Login</button>
-        </form>
-    </div>
+    <div class="container">
+        <header>
+            <h1><a href="#" class="brand-logo">LuchoH Admin</a></h1>
+            <nav>
+                <ul>
+                    <li><a href="#" id="nav-images">Images</a></li>
+                    <li><a href="#" id="nav-tags">Tags</a></li>
+                    <li><a href="#" id="logoutButton">Logout</a></li>
+                </ul>
+            </nav>
+        </header>
 
-    <div id="adminContent" style="display:none;">
-        <button id="logoutButton">Logout</button>
+        <main>
+            <div id="loginForm" style="display:none;">
+                <h2>Login</h2>
+                <form id="login-form">
+                    <div>
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" required>
+                    </div>
+                    <div>
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    <button type="submit">Login</button>
+                </form>
+            </div>
 
-        <h2>Upload Image</h2>
-        <form id="upload-form">
-            <input type="file" id="image-file" required>
-            <input type="text" id="image-title" placeholder="Image Title" required>
-            <textarea id="image-description" placeholder="Image Description"></textarea>
-            <button type="submit">Upload</button>
-        </form>
-
-        <h2>Create Gallery</h2>
-        <form id="gallery-form">
-            <input type="text" id="gallery-title" placeholder="Gallery Title" required>
-            <textarea id="gallery-description" placeholder="Gallery Description"></textarea>
-            <button type="submit">Create Gallery</button>
-        </form>
-
-        <h2>Galleries</h2>
-        <div id="galleries-list"></div>
-
-        <h2>Images</h2>
-        <div id="images-list"></div>
-
-        <div id="edit-image-section" style="display:none;">
-            <h2>Edit Image</h2>
-            <form id="edit-image-form">
-                <input type="hidden" id="edit-image-id">
-                <input type="text" id="edit-image-title" placeholder="Image Title" required>
-                <textarea id="edit-image-description" placeholder="Image Description"></textarea>
-                <div id="cropper-container" style="max-width: 500px; max-height: 500px;">
-                    <img id="image-to-crop" src="" alt="Image to crop">
+            <div id="adminContent" style="display:none;">
+                <div id="imageSection" style="display:none;">
+                    <h2>Images</h2>
+                    <div id="images-list"></div>
+                    <div id="upload-section">
+                        <h3>Upload Image</h3>
+                        <form id="upload-form">
+                            <div>
+                                <label for="image-file">Image File</label>
+                                <input type="file" id="image-file" name="file" required>
+                            </div>
+                            <div>
+                                <label for="image-title">Image Title</label>
+                                <input type="text" id="image-title" name="title" required>
+                            </div>
+                            <div>
+                                <label for="image-description">Image Description</label>
+                                <textarea id="image-description" name="description"></textarea>
+                            </div>
+                            <div>
+                                <label for="image-slug">Slug</label>
+                                <input type="text" id="image-slug" name="slug" required>
+                            </div>
+                            <div>
+                                <label for="image-tags">Tags (comma-separated)</label>
+                                <input type="text" id="image-tags" name="tags">
+                            </div>
+                            <div>
+                                <label for="image-sticky">
+                                    <input type="checkbox" id="image-sticky" name="sticky">
+                                    Sticky
+                                </label>
+                            </div>
+                            <button type="submit">Upload</button>
+                        </form>
+                    </div>
                 </div>
-                <button type="button" id="apply-crop">Create/Update Thumbnail</button>
-                <button type="submit">Update Image</button>
-            </form>
-        </div>
+
+                <div id="tagSection" style="display:none;">
+                    <h2>Tags</h2>
+                    <div id="tags-list"></div>
+                    <div id="tag-form-section">
+                        <h3>Create Tag</h3>
+                        <form id="tag-form">
+                            <div>
+                                <label for="tag-name">Tag Name</label>
+                                <input type="text" id="tag-name" name="name" required>
+                            </div>
+                            <div>
+                                <label for="tag-description">Tag Description</label>
+                                <textarea id="tag-description" name="description"></textarea>
+                            </div>
+                            <button type="submit">Create Tag</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div id="editImageSection" style="display:none;">
+                    <h2>Edit Image</h2>
+                    <form id="edit-image-form">
+                        <input type="hidden" id="edit-image-id" name="id">
+                        <div>
+                            <label for="edit-image-title">Image Title</label>
+                            <input type="text" id="edit-image-title" name="title" required>
+                        </div>
+                        <div>
+                            <label for="edit-image-description">Image Description</label>
+                            <textarea id="edit-image-description" name="description"></textarea>
+                        </div>
+                        <div>
+                            <label for="edit-image-slug">Slug</label>
+                            <input type="text" id="edit-image-slug" name="slug" required>
+                        </div>
+                        <div>
+                            <label for="edit-image-tags">Tags (comma-separated)</label>
+                            <input type="text" id="edit-image-tags" name="tags">
+                        </div>
+                        <div>
+                            <label for="edit-image-sticky">
+                                <input type="checkbox" id="edit-image-sticky" name="sticky">
+                                Sticky
+                            </label>
+                        </div>
+                        <div id="cropper-container">
+                            <img id="image-to-crop" src="" alt="Image to crop">
+                        </div>
+                        <button type="button" id="apply-crop">Create/Update Thumbnail</button>
+                        <button type="submit">Update Image</button>
+                    </form>
+                </div>
+
+                <div id="editTagSection" style="display:none;">
+                    <h2>Edit Tag</h2>
+                    <form id="edit-tag-form">
+                        <input type="hidden" id="edit-tag-id" name="id">
+                        <div>
+                            <label for="edit-tag-name">Tag Name</label>
+                            <input type="text" id="edit-tag-name" name="name" required>
+                        </div>
+                        <div>
+                            <label for="edit-tag-description">Tag Description</label>
+                            <textarea id="edit-tag-description" name="description"></textarea>
+                        </div>
+                        <button type="submit">Update Tag</button>
+                    </form>
+                </div>
+            </div>
+        </main>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
-    <script type="module" src="/static/js/admin.js"></script>
+    <script src="{{ url_for('static', path='/js/admin.js') }}" type="module"></script>
+    <script src="{{ url_for('static', path='/js/global.js') }}" type="module"></script>
+    <script type="module">
+        import { showEditImageSection, deleteImage, deleteTag } from "{{ url_for('static', path='/js/admin.js') }}";
+        window.editImage = showEditImageSection;
+        window.deleteImage = deleteImage;
+        window.deleteTag = deleteTag;
+    </script>
 </body>
 
 </html>

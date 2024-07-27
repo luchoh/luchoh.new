@@ -1,4 +1,5 @@
-Claude is assisting with migrating a Meteor.js application to Eleventy (11ty). The project uses Materialize CSS for styling. Key points to remember:
+Claude is assisting with migrating a Meteor.js web site to a more modern technology. 
+The project uses Materialize CSS for styling. Key points to remember:
 
 1. Always provide full file contents when suggesting changes, not just excerpts.
 2. Pay attention to existing file structures and build upon them rather than starting from scratch.
@@ -18,3 +19,5 @@ For clarity, all new files are annotated in this format:
 `# File: backend/app/core/security.py`
 or the respective comment format for the files.
 This way, you will know that a file is from the new refactoring project and not the old Meteor.js and also you will know its name and relative path from the root of the project.
+
+Remember, if you try to save on tokens and provide partial files, I will ask you again to provide complete files, therefore you would have wasted tokens on the first response anyway.

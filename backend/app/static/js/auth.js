@@ -62,17 +62,6 @@ export async function checkLoginStatus() {
 export function updateUIAfterLogin() {
     const loginForm = document.getElementById('loginForm');
     const adminContent = document.getElementById('adminContent');
-    console.log('Updating UI after login');
-    console.log('loginForm:', loginForm);
-    console.log('adminContent:', adminContent);
-    if (loginForm) {
-        loginForm.style.display = 'none';
-        console.log('Login form hidden');
-    }
-    if (adminContent) {
-        adminContent.style.display = 'block';
-        console.log('Admin content shown');
-    } else {
-        console.warn('Admin content element not found');
-    }
+    if (loginForm) loginForm.style.display = 'none';
+    if (adminContent) adminContent.style.display = 'block';
 }

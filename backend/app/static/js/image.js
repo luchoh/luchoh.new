@@ -53,14 +53,31 @@ export async function uploadImage(file, title, description) {
     return responseData;
 }
 
-export async function updateImage(id, title, description) {
+export async function updateImage(id, formData) {
+    const token = getToken();
+
+    // Convert FormData to a plain object
+    const updateData = {};
+    for (let [key, value] of formData.entries()) {
+        if (key === 'tags') {
+            updateData[key] = value.split(',').map(tag => tag.trim());
+        } else if (key === 'sticky') {
+            updateData[key] = value === 'on';
+        } else {
+            updateData[key] = value;
+        }
+    }
+
+    // Remove id from updateData as it's in the URL
+    delete updateData.id;
+
     const response = await fetch(`/api/v1/images/${id}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${getToken()}`
+            'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ title, description })
+        body: JSON.stringify(updateData)
     });
 
     if (response.status === 401) {
@@ -68,11 +85,13 @@ export async function updateImage(id, title, description) {
     }
 
     if (!response.ok) {
-        throw new Error('Failed to update image');
+        const errorData = await response.json();
+        throw new Error(`Failed to update image: ${JSON.stringify(errorData)}`);
     }
 
     return await response.json();
 }
+
 
 export async function deleteImage(id) {
     const response = await fetch(`/api/v1/images/${id}`, {
@@ -116,18 +135,28 @@ export async function loadImages() {
 
         images.forEach(img => {
             const imageElement = document.createElement('div');
+            imageElement.className = 'image-item';
+            imageElement.dataset.id = img.id;
+            imageElement.dataset.title = img.title;
+            imageElement.dataset.description = img.description;
+            imageElement.dataset.filePath = img.file_path;
+            imageElement.dataset.slug = img.slug;
+            imageElement.dataset.tags = JSON.stringify(img.tags);
+            imageElement.dataset.sticky = img.sticky;
+
             imageElement.innerHTML = `
-                <h3>${img.title}</h3>
-                <p>${img.description}</p>
-                <img src="${img.file_path}" alt="${img.title}" style="max-width: 200px;">
-                <img id="thumbnail-${img.id}" src="${img.thumbnail_url || img.file_path}" alt="Thumbnail" style="max-width: 100px;">
-                <button onclick="editImage(${img.id}, '${img.title}', '${img.description}', '${img.file_path}')">Edit</button>
-                <button onclick="deleteImage(${img.id})">Delete</button>
+                <h3>${escapeHtml(img.title)}</h3>
+                <p>${escapeHtml(img.description)}</p>
+                <img src="${escapeHtml(img.file_path)}" alt="${escapeHtml(img.title)}" style="max-width: 200px;">
+                <img class="thumbnail" src="${escapeHtml(img.thumbnail_url || img.file_path)}" alt="Thumbnail" style="max-width: 100px;">
+                <button class="edit-image">Edit</button>
+                <button class="delete-image">Delete</button>
             `;
             imagesList.appendChild(imageElement);
         });
         console.log('Images fetched successfully:', images);
     } catch (error) {
+        console.error('Error in loadImages:', error);
         handleError(error);
     }
 }
@@ -151,4 +180,25 @@ export async function createThumbnail(imageId, cropData) {
     }
 
     return await response.json();
+}
+
+// Helper function to escape HTML special characters
+function escapeHtml(unsafe) {
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+// Helper function to escape JavaScript string content
+function escapeJS(unsafe) {
+    return unsafe
+        .replace(/\\/g, "\\\\")
+        .replace(/'/g, "\\'")
+        .replace(/"/g, '\\"')
+        .replace(/\n/g, "\\n")
+        .replace(/\r/g, "\\r")
+        .replace(/\t/g, "\\t");
 }

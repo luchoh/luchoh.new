@@ -7,7 +7,6 @@ const fetch = require('node-fetch');
 const path = require('path');
 const { DateTime } = require('luxon');
 
-
 const app = express();
 const port = 3333;
 
@@ -19,11 +18,11 @@ const nunjucksEnv = nunjucks.configure(['src', 'src/_includes'], {
 });
 
 // Add a custom filter for debugging
-nunjucksEnv.addFilter('debug', function(obj) {
+nunjucksEnv.addFilter('debug', function (obj) {
     return JSON.stringify(obj, null, 2);
 });
 
-nunjucksEnv.addFilter('dateYear', function() {
+nunjucksEnv.addFilter('dateYear', function () {
     return DateTime.now().toFormat('yyyy');
 });
 
@@ -35,17 +34,17 @@ app.use('/js', express.static(path.join(__dirname, 'node_modules/materialize-css
 // Define routes
 app.get('/', async (req, res) => {
     try {
-        const galleriesResponse = await fetch('http://localhost:8000/api/v1/galleries/');
-        const galleries = await galleriesResponse.json();
+        const tagsResponse = await fetch('http://localhost:8000/api/v1/tags/');
+        const tags = await tagsResponse.json();
 
         const imagesResponse = await fetch('http://localhost:8000/api/v1/images/');
         const images = await imagesResponse.json();
 
-        console.log(galleries);
+        console.log(tags);
         console.log(images);
 
-        res.render('index.njk', { 
-            galleries, 
+        res.render('index.njk', {
+            tags,
             images,
             logoImage: '/images/luchoh-logo-invert.png',
             bannerImage: '/images/banner.jpg'
@@ -54,6 +53,31 @@ app.get('/', async (req, res) => {
         console.error('Error fetching data:', error);
         res.status(500).send('Error fetching data');
     }
+});
+
+app.get('/tag/:tagName', async (req, res) => {
+    try {
+        const tagName = req.params.tagName;
+        const tagResponse = await fetch(`http://localhost:8000/api/v1/tags/${tagName}`);
+        const tag = await tagResponse.json();
+
+        const imagesResponse = await fetch(`http://localhost:8000/api/v1/tags/${tagName}/images`);
+        const images = await imagesResponse.json();
+
+        res.render('tag.njk', {
+            tag,
+            images,
+            logoImage: '/images/luchoh-logo-invert.png',
+            bannerImage: '/images/banner.jpg'
+        });
+    } catch (error) {
+        console.error('Error fetching tag data:', error);
+        res.status(500).send('Error fetching tag data');
+    }
+});
+
+app.get('/admin', (req, res) => {
+    res.render('admin.html');
 });
 
 // Start the server

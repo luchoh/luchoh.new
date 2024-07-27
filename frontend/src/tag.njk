@@ -1,16 +1,16 @@
 ---
 layout: base.njk
 pagination:
-    data: galleries
+    data: tags
     size: 1
-    alias: gallery
-permalink: "gallery/{{ gallery.slug }}/"
+    alias: tag
+permalink: "tag/{{ tag.name }}/"
 ---
-{# Project: luchoh.com refactoring # File: frontend/src/gallery.njk #}
-<h1>{{ gallery.title }}</h1>
+{# Project: luchoh.com refactoring # File: frontend/src/tag.njk #}
+<h1>{{ tag.name }}</h1>
 
 <div class="image-grid">
-    {% for image in gallery.images %}
+    {% for image in tag.images %}
     <div class="image-item">
         <img src="{{ image.url }}" alt="{{ image.title }}">
         <p class="image-title">{{ image.title }}</p>

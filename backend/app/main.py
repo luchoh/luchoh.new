@@ -2,11 +2,14 @@
 # File: backend/app/main.py
 import os
 import logging
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Form
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from app.api.api import api_router
 from app.core.config import settings
+from app.db.session import get_db
+from app import crud, schemas
+from typing import List
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

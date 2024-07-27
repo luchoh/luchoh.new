@@ -3,14 +3,14 @@
 import os
 import logging
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile, File, Form
 from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.auth.auth import get_current_active_user
 from app.models.user import User
 from app.utils.file import generate_file_path
+from app.utils.slugify import generate_slug
 
-# from app.schemas.image import
 from app.api import deps
 from app import crud, models, schemas
 from PIL import Image as PILImage
@@ -32,15 +32,37 @@ def get_full_url(request: Request, path: str) -> str:
 
 @router.post("/", response_model=schemas.Image)
 async def create_image(
-    image_in: schemas.ImageCreate,
+    request: Request,
+    file: UploadFile = File(...),
+    title: str = Form(...),
+    description: str = Form(None),
+    slug: str = Form(...),
+    sticky: bool = Form(False),
+    tags: str = Form(""),
     db: Session = Depends(deps.get_db),
     current_user: models.User = Depends(deps.get_current_active_user),
 ):
     logger.info("Create image endpoint called")
-    logger.info(f"Received image data: {image_in.dict()}")
 
     if not crud.user.is_superuser(current_user):
         raise HTTPException(status_code=403, detail="Not enough permissions")
+
+    relative_path, full_path = generate_file_path(file.filename)
+
+    with open(full_path, "wb") as buffer:
+        content = await file.read()
+        buffer.write(content)
+
+    tag_list = [tag.strip() for tag in tags.split(",") if tag.strip()]
+
+    image_in = schemas.ImageCreate(
+        title=title,
+        description=description,
+        file_path=relative_path,
+        slug=slug,
+        sticky=sticky,
+        tags=tag_list,
+    )
 
     try:
         image = crud.image.create(db=db, obj_in=image_in)
@@ -74,11 +96,19 @@ def read_images(
     limit: int = 100,
 ):
     images = crud.image.get_multi(db, skip=skip, limit=limit)
-    for image in images:
-        image.file_path = get_full_url(request, image.file_path)
-        if image.thumbnail_url:
-            image.thumbnail_url = get_full_url(request, image.thumbnail_url)
-    return images
+    return [
+        schemas.Image(
+            id=image.id,
+            title=image.title,
+            description=image.description,
+            file_path=image.file_path,
+            thumbnail_url=image.thumbnail_url,
+            slug=image.slug,
+            sticky=image.sticky,
+            tags=[schemas.Tag.from_orm(tag) for tag in image.tags],
+        )
+        for image in images
+    ]
 
 
 @router.put("/{image_id}", response_model=schemas.Image)
@@ -94,6 +124,15 @@ def update_image(
         raise HTTPException(status_code=404, detail="Image not found")
     if not crud.user.is_superuser(current_user):
         raise HTTPException(status_code=403, detail="Not enough permissions")
+
+    # Generate slug if title is provided and slug is not
+    if image_in.title and not image_in.slug:
+        image_in.slug = generate_slug(image_in.title)
+
+    # Convert tags from list to string if necessary
+    if isinstance(image_in.tags, list):
+        image_in.tags = ",".join(image_in.tags)
+
     image = crud.image.update(db=db, db_obj=image, obj_in=image_in)
     return image
 
@@ -164,3 +203,18 @@ async def create_thumbnail(
         db.refresh(image)
 
     return image
+
+
+@router.get("/sticky", response_model=List[schemas.Image])
+def read_sticky_images(
+    request: Request,
+    db: Session = Depends(deps.get_db),
+    skip: int = 0,
+    limit: int = 100,
+):
+    images = crud.image.get_sticky_images(db, skip=skip, limit=limit)
+    for image in images:
+        image.file_path = get_full_url(request, image.file_path)
+        if image.thumbnail_url:
+            image.thumbnail_url = get_full_url(request, image.thumbnail_url)
+    return images

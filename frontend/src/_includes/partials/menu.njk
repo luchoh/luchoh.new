@@ -1,10 +1,10 @@
 {# Project: luchoh.com refactoring 
 # File: frontend/src/_includes/partials/menu.njk #}
 <ul class="menu right hide-on-med-and-down">
-    <li class="galleries">
+    <li class="tags">
         <ul>
-            {% for gallery in galleries %}
-                <li><a href="/galleries/{{ gallery.slug }}" title="{{ gallery.description }}">{{ gallery.title | lower }}</a></li>
+            {% for tag in tags %}
+                <li><a href="/tags/{{ tag.name }}" title="{{ tag.description }}">{{ tag.name | lower }}</a></li>
             {% endfor %}
             <li><a class="content-signin" href="/admin">sign in</a></li>
         </ul>
