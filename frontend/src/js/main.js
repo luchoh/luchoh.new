@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
         fetchImages(gallerySlug);
     }
 
-    // Mobile menu toggle (if needed)
+    // Mobile menu toggle
     const mobileMenuToggle = document.querySelector('.button-collapse');
     const mobileMenu = document.querySelector('#mobile-menu');
 
@@ -62,13 +62,6 @@ document.addEventListener('DOMContentLoaded', () => {
             mobileMenu.classList.toggle('active');
         });
     }
-
-    // Initialize dropdown
-    var dropdownElems = document.querySelectorAll('.dropdown-trigger');
-    var dropdownInstances = M.Dropdown.init(dropdownElems, {
-        coverTrigger: false,
-        constrainWidth: false
-    });
 
     // Initialize Lightbox
     if (typeof lightbox !== 'undefined') {

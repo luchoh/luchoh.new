@@ -1,22 +1,23 @@
 {# Project: luchoh.com refactoring # File: frontend/src/_includes/partials/menu.njk #}
 <ul class="menu right hide-on-med-and-down">
-    <li><a href="/">Home</a></li>
-    <li class="dropdown">
-        <a href="#" class="dropdown-trigger" data-target="tag-dropdown">Tags</a>
-        <ul id="tag-dropdown" class="dropdown-content">
-            {% include "partials/tag-list.njk" %}
-        </ul>
-    </li>
-    <li><a href="/about">About</a></li>
-    <li><a class="content-signin" href="/admin">Sign In</a></li>
+    {% for tag in tags %}
+        <li><a href="/tag/{{ tag.slug }}">{{ tag.name }}</a></li>
+    {% endfor %}
+    {% if user.isAuthenticated %}
+        <li><a class="content-signin" href="/admin">Manage</a></li>
+    {% else %}
+        <li><a class="content-signin" href="/admin">Sign In</a></li>
+    {% endif %}
 </ul>
 
 <ul id="mobile-menu" class="sidenav">
-    <li><a href="/">Home</a></li>
+    {% for tag in tags %}
+        <li><a href="/tag/{{ tag.slug }}">{{ tag.name }}</a></li>
+    {% endfor %}
     <li class="divider"></li>
-    <li><div class="subheader">Tags</div></li>
-    {% include "partials/tag-list.njk" %}
-    <li class="divider"></li>
-    <li><a href="/about">About</a></li>
-    <li><a class="content-signin" href="/admin">Sign In</a></li>
+    {% if user.isAuthenticated %}
+        <li><a class="content-signin" href="/admin">Manage</a></li>
+    {% else %}
+        <li><a class="content-signin" href="/admin">Sign In</a></li>
+    {% endif %}
 </ul>

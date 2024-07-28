@@ -82,27 +82,6 @@ nav ul.menu.hide-on-med-and-down {
     text-transform: lowercase;
 }
 
-nav ul.menu.hide-on-med-and-down {
-    margin: 0;
-    padding: 6px 0 0;
-    list-style: none;
-    font-size: 1.2em;
-    position: relative;
-    display: inline-block;
-    float: right;
-    text-transform: lowercase;
-    margin-bottom: 10px
-}
-
-nav ul.menu.hide-on-med-and-down p {
-    margin: 0;
-    padding: .2em 1em .2em .2em;
-    text-align: right;
-    display: inline-block;
-    position: static;
-    float: left
-}
-
 nav ul.menu.hide-on-med-and-down li {
     padding: 0;
     margin: 0;
@@ -132,47 +111,6 @@ nav ul.menu.hide-on-med-and-down li a:visited {
 nav ul.menu.hide-on-med-and-down li a.active,
 nav ul.menu.hide-on-med-and-down li a:hover {
     color: #fff
-}
-
-nav ul.menu.hide-on-med-and-down ul {
-    float: left
-}
-
-nav ul.menu.hide-on-med-and-down ul li {
-    z-index: 1000
-}
-
-nav ul.menu.hide-on-med-and-down ul li ul {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    display: inline-block
-}
-
-ul.menu ul ul {
-    margin-left: .2em;
-    position: relative;
-    top: 0
-}
-
-.menu li {
-    display: inline-block;
-    margin-left: 10px;
-}
-
-.menu li a {
-    color: #B1B1B1;
-    text-decoration: none;
-    padding: 0.2em 0.3em;
-}
-
-.menu li a:hover,
-.menu li a.active {
-    color: white;
-}
-
-.menu li a.content-signin {
-    color: white;
 }
 
 .banner img {
@@ -238,28 +176,6 @@ ul.menu ul ul {
     color: #888;
     font-size: 1em;
     margin-top: 0.5rem;
-}
-
-.dropdown-content {
-    background-color: #333;
-}
-
-.dropdown-content li>a {
-    color: #B1B1B1;
-}
-
-.dropdown-content li>a:hover {
-    background-color: #444;
-    color: #fff;
-}
-
-.tag-list {
-    margin: 0;
-    padding: 0;
-}
-
-.tag-list li {
-    list-style-type: none;
 }
 
 .sidenav {
