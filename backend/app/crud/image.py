@@ -78,5 +78,19 @@ class CRUDImage(CRUDBase[Image, ImageCreate, ImageUpdate]):
             .all()
         )
 
+    def get_tag_images_by_id(
+        self, db: Session, *, tag_id, skip: int = 0, limit: int = 100
+    ) -> List[Image]:
+        return (
+            db.query(self.model)
+            .join(Image.tags)
+            .filter(Tag.id == int(tag_id))
+            .order_by(self.model.created_at.desc())
+            .offset(skip)
+            .limit(limit)
+            .all()
+        )
+        # images_with_tag = session.query(Image).join(Image.tags).filter(Tag.id == tag_id).all()
+
 
 image = CRUDImage(Image)

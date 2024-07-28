@@ -26,11 +26,5 @@ class CRUDTag(CRUDBase[Tag, TagCreate, TagUpdate]):
     def get_all_ordered(self, db: Session) -> List[Tag]:
         return db.query(Tag).order_by(Tag.order).all()
 
-    def remove_invalid_tags(self, db: Session) -> None:
-        invalid_tags = db.query(Tag).filter(Tag.name.in_(["1", ",", "9"])).all()
-        for tag in invalid_tags:
-            db.delete(tag)
-        db.commit()
-
 
 tag = CRUDTag(Tag)

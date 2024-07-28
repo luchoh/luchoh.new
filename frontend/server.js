@@ -75,7 +75,7 @@ app.get('/tag/:tagName', async (req, res) => {
             images,
             tags,
             user: {
-                isAuthenticated: req.session && req.session.userId ? true : false // Adjust based on your auth system
+                isAuthenticated: req.session && req.session.userId ? true : false
             },
             logoImage: '/images/luchoh-logo-invert.png',
             bannerImage: '/images/banner.jpg'

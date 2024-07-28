@@ -2,7 +2,7 @@
 <ul class="menu right hide-on-med-and-down">
     {% for tag in tags %}
         <li>
-            <a href="/tag/{{ tag.slug }}">{{ tag.name }}</a>
+            <a href="/tags/{{ tag.id }}/images" title="{{ tag.description }}">{{ tag.name }}</a>
         </li>
     {% endfor %}
     {% if user.isAuthenticated %}
@@ -18,7 +18,7 @@
 <ul id="mobile-menu" class="sidenav">
     {% for tag in tags %}
         <li>
-            <a href="/tag/{{ tag.slug }}">{{ tag.name }}</a>
+            <a href="/tags/{{ tag.id }}/images">{{ tag.name }}</a>
         </li>
     {% endfor %}
     <li class="divider"></li>

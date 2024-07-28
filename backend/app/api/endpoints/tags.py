@@ -74,3 +74,14 @@ def delete_tag(
         raise HTTPException(status_code=403, detail="Not enough permissions")
     tag = crud.tag.remove(db=db, id=tag_id)
     return tag
+
+
+@router.get("/{tag_id}/images")
+async def get_images_by_tag(*, db: Session = Depends(deps.get_db), tag_id: int):
+    tag = crud.tag.get(db, id=tag_id)
+    # tag = await Tag.get(name=tag_id)
+    if not tag:
+        raise HTTPException(status_code=404, detail="Tag not found")
+
+    images = crud.image.get_tag_images_by_id(db, tag_id=tag_id)
+    return images

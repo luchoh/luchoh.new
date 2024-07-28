@@ -70,6 +70,24 @@ nav {
     margin: 0;
 }
 
+.menu li a {
+    position: relative;
+}
+
+.menu li a:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: #fff;
+    padding: 5px;
+    border-radius: 3px;
+    font-size: 0.8em;
+    white-space: nowrap;
+}
+
 nav ul.menu.hide-on-med-and-down {
     margin: 0;
     margin-bottom: 10px;
