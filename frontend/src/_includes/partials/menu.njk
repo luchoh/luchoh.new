@@ -1,12 +1,22 @@
-{# Project: luchoh.com refactoring 
-# File: frontend/src/_includes/partials/menu.njk #}
+{# Project: luchoh.com refactoring # File: frontend/src/_includes/partials/menu.njk #}
 <ul class="menu right hide-on-med-and-down">
-    <li class="tags">
-        <ul>
-            {% for tag in tags %}
-                <li><a href="/tags/{{ tag.name }}" title="{{ tag.description }}">{{ tag.name | lower }}</a></li>
-            {% endfor %}
-            <li><a class="content-signin" href="/admin">sign in</a></li>
+    <li><a href="/">Home</a></li>
+    <li class="dropdown">
+        <a href="#" class="dropdown-trigger" data-target="tag-dropdown">Tags</a>
+        <ul id="tag-dropdown" class="dropdown-content">
+            {% include "partials/tag-list.njk" %}
         </ul>
     </li>
+    <li><a href="/about">About</a></li>
+    <li><a class="content-signin" href="/admin">Sign In</a></li>
+</ul>
+
+<ul id="mobile-menu" class="sidenav">
+    <li><a href="/">Home</a></li>
+    <li class="divider"></li>
+    <li><div class="subheader">Tags</div></li>
+    {% include "partials/tag-list.njk" %}
+    <li class="divider"></li>
+    <li><a href="/about">About</a></li>
+    <li><a class="content-signin" href="/admin">Sign In</a></li>
 </ul>

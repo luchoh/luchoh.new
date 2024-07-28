@@ -1,0 +1,14 @@
+{# Project: luchoh.com refactoring # File: frontend/src/image.njk #}
+{% extends "base.njk" %}
+
+{% block content %}
+<div id="gallery" class="grey darken-4">
+    {% include "partials/header.njk" %}
+
+    <div class="container grey darken-4">
+        {% include "partials/photograph.njk" %}
+    </div>
+
+    {% include "partials/footer.njk" %}
+</div>
+{% endblock %}

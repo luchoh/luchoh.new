@@ -1,0 +1,21 @@
+{# Project: luchoh.com refactoring # File: frontend/src/_includes/partials/photograph.njk #}
+{{#with image}}
+<div>
+    <h3 id="title" itemprop="name">{{title}}</h3>
+    {% if description %}
+        <h4>{{description}}</h4>
+    {% endif %}
+</div>
+
+<div class="row">
+    <div class="col s12 l12 m12 center-align">
+        {% if image.url %}
+            <img src="{{image.url}}" alt="{{title}}" class="center-align responsive-img">
+            <img src="/thumbnail/{{slug}}" class="hide" itemprop="thumbnail">
+        {% else %}
+            <img src="{{image.thumbnail}}" alt="{{title}}" class="center-align responsive-img" 
+                 delay="50" position="bottom" tooltip="Please login to view full-size images">
+        {% endif %}
+    </div>
+</div>
+{% endwith %}

@@ -10,7 +10,12 @@
                     <div class="image-grid">
                         {% for image in images %}
                         <div class="col s12 l3 m6 featured-photo">
-                            {% include "partials/image.njk" %}
+                            <a href="{{ image.file_path }}" data-lightbox="image-gallery" data-title="{{ image.title }}">
+                                <img src="{{ image.thumbnail_url or image.file_path }}" 
+                                     alt="{{ image.title }}" 
+                                     class="lazyload responsive-img">
+                            </a>
+                            <p class="image-title">{{ image.title }}</p>
                         </div>
                         {% endfor %}
                     </div>
@@ -23,4 +28,8 @@
     <p>No images found. Please make sure your API is running and returning data.</p>
     {% endif %}
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lazysizes/5.3.2/lazysizes.min.js"></script>
 {% endblock %}
