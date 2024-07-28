@@ -3,14 +3,11 @@
     {% if image.url %}
         <a href="{{ image.url }}" class="swipebox" itemprop="contentUrl" title="{{ image.title }}">
             <img src="{{ image.thumbnail }}" alt="{{ image.title }}" class="center-align responsive-img">
-            <img src="/thumbnail/{{ image.slug }}" class="hide" itemprop="thumbnail">
-        </a>
-    {% else %}
-        <img src="{{ image.thumbnail }}" alt="{{ image.title }}" class="center-align responsive-img" 
-             delay="50" position="bottom" tooltip="Please login to view full-size images" itemprop="contentUrl">
-    {% endif %}
-
-    <div class="window title">
-        <h3 class="title" itemprop="name">{{ image.title }}</h3>
-    </div>
-</div>
+                <img src="/thumbnail/{{ image.slug }}" class="hide" itemprop="thumbnail"></a>
+            {% else %}
+                <img src="{{ image.thumbnail }}" alt="{{ image.title }}" class="center-align responsive-img" delay="50" position="bottom" tooltip="Please login to view full-size images" itemprop="contentUrl">
+                {% endif %}
+                <div class="window title">
+                    <h3 class="title" itemprop="name">{{ image.title }}</h3>
+                </div>
+            </div>

@@ -1,6 +1,8 @@
 {# Project: luchoh.com refactoring # File: frontend/src/_includes/partials/tag-list.njk #}
 <ul class="tag-list">
     {% for tag in tags %}
-        <li><a href="/tag/{{ tag.slug }}">{{ tag.name }}</a></li>
+        <li>
+            <a href="/tag/{{ tag.slug }}">{{ tag.name }}</a>
+        </li>
     {% endfor %}
 </ul>

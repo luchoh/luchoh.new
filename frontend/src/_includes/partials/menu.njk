@@ -1,23 +1,34 @@
 {# Project: luchoh.com refactoring # File: frontend/src/_includes/partials/menu.njk #}
 <ul class="menu right hide-on-med-and-down">
     {% for tag in tags %}
-        <li><a href="/tag/{{ tag.slug }}">{{ tag.name }}</a></li>
+        <li>
+            <a href="/tag/{{ tag.slug }}">{{ tag.name }}</a>
+        </li>
     {% endfor %}
     {% if user.isAuthenticated %}
-        <li><a class="content-signin" href="/admin">Manage</a></li>
+        <li>
+            <a class="content-signin" href="/admin">Manage</a>
+        </li>
     {% else %}
-        <li><a class="content-signin" href="/admin">Sign In</a></li>
+        <li>
+            <a class="content-signin" href="/admin">Sign In</a>
+        </li>
     {% endif %}
 </ul>
-
 <ul id="mobile-menu" class="sidenav">
     {% for tag in tags %}
-        <li><a href="/tag/{{ tag.slug }}">{{ tag.name }}</a></li>
+        <li>
+            <a href="/tag/{{ tag.slug }}">{{ tag.name }}</a>
+        </li>
     {% endfor %}
     <li class="divider"></li>
     {% if user.isAuthenticated %}
-        <li><a class="content-signin" href="/admin">Manage</a></li>
+        <li>
+            <a class="content-signin" href="/admin">Manage</a>
+        </li>
     {% else %}
-        <li><a class="content-signin" href="/admin">Sign In</a></li>
+        <li>
+            <a class="content-signin" href="/admin">Sign In</a>
+        </li>
     {% endif %}
 </ul>

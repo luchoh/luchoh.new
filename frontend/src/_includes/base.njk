@@ -1,38 +1,35 @@
 {# Project: luchoh.com refactoring # File: frontend/src/_includes/base.njk #}
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% if title %}{{ title }} | {% endif %}luchoH Photography</title>
-    <link rel="stylesheet" href="/css/materialize.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css">
-    <link rel="stylesheet" href="/css/styles.css">
-</head>
-<body>
-    <div class="hiddendiv common"></div>
-    <div id="gallery" class="grey darken-4">
-        <header>
-            {% include "partials/header.njk" %}
-        </header>
-
-        <div class="container grey darken-4">
-            {% include "partials/sticky.njk" %}
-        </div>
-
-        <div class="container grey darken-4">
-            {% block content %}
-            {% endblock %}
-        </div>
-
-        <footer>
-            {% include "partials/footer.njk" %}
-        </footer>
-    </div>
-
-    <script src="/js/materialize.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox-plus-jquery.min.js"></script>
-    <script src="/js/main.js"></script>
-    {% block scripts %}{% endblock %}
-</body>
-</html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>
+            {% if title %}
+                {{ title }} |
+            {% endif %}luchoH Photography</title>
+        <link rel="stylesheet" href="/css/materialize.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css">
+        <link rel="stylesheet" href="/css/styles.css">
+    </head>
+    <body>
+        <div class="hiddendiv common"></div>
+        <div id="gallery" class="grey darken-4">
+            <header>
+                {% include "partials/header.njk" %}
+            </header>
+            <div class="container grey darken-4">
+                {% include "partials/sticky.njk" %}
+            </div>
+            <div class="container grey darken-4"> {% block content %}{% endblock %}
+                </div>
+                <footer>
+                    {% include "partials/footer.njk" %}
+                </footer>
+            </div>
+            <script src="/js/materialize.min.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox-plus-jquery.min.js"></script>
+            <script src="/js/main.js"></script>
+            {% block scripts %}{% endblock %}
+        </body>
+    </html>
