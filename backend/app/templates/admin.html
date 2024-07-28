@@ -114,8 +114,14 @@
                             <input type="text" id="edit-image-slug" name="slug" required>
                         </div>
                         <div>
-                            <label for="edit-image-tags">Tags (comma-separated)</label>
-                            <input type="text" id="edit-image-tags" name="tags">
+                            <label for="edit-image-tags">Tags:</label>
+                            <select id="edit-image-tags" multiple>
+                                <!-- Options will be populated dynamically -->
+                            </select>
+                        </div>
+                        <div>
+                            <input type="text" id="new-tag-input" placeholder="Enter new tag">
+                            <button type="button" id="add-new-tag-btn">Add New Tag</button>
                         </div>
                         <div>
                             <label for="edit-image-sticky">

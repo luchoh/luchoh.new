@@ -104,25 +104,25 @@ export async function loadTags() {
 
         const tags = await response.json();
         const tagsList = document.getElementById('tags-list');
-        if (!tagsList) {
-            console.error('Element with id "tags-list" not found');
-            return;
-        }
-        tagsList.innerHTML = '';
+        if (tagsList) {
+            tagsList.innerHTML = '';
 
-        tags.forEach(tag => {
-            const tagElement = document.createElement('div');
-            tagElement.innerHTML = `
-                <h3>${tag.name}</h3>
-                <p>${tag.description}</p>
-                <button onclick="editTag(${tag.id}, '${tag.name}', '${tag.description}')">Edit</button>
-                <button onclick="deleteTag(${tag.id})">Delete</button>
-            `;
-            tagsList.appendChild(tagElement);
-        });
+            tags.forEach(tag => {
+                const tagElement = document.createElement('div');
+                tagElement.innerHTML = `
+                    <h3>${tag.name}</h3>
+                    <p>${tag.description}</p>
+                    <button onclick="editTag(${tag.id}, '${tag.name}', '${tag.description}')">Edit</button>
+                    <button onclick="deleteTag(${tag.id})">Delete</button>
+                `;
+                tagsList.appendChild(tagElement);
+            });
+        }
         console.log('Tags fetched successfully:', tags);
+        return tags;  // Make sure this line is present
     } catch (error) {
         console.error('Error in loadTags:', error);
         handleError(error);
+        return [];  // Return an empty array in case of error
     }
 }

@@ -1,7 +1,7 @@
 # Project: luchoh.com refactoring
 # File: backend/app/api/endpoints/tags.py
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Body
 from sqlalchemy.orm import Session
 from app import crud, models, schemas
 from app.api import deps

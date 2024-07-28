@@ -17,7 +17,8 @@ async function initializeAdmin() {
     setupEditImageForm();
     setupEditTagForm();
     setupLogoutButton();
-    setupImageListListeners();  // Add this line
+    setupImageListListeners();
+    setupTagCreation();
 
     const isLoggedIn = await auth.checkLoginStatus();
     if (isLoggedIn) {
@@ -181,14 +182,20 @@ async function handleImageEdit(e) {
     const formData = new FormData(form);
     const id = document.getElementById('edit-image-id').value;
 
-    // Encode the values before sending
-    formData.set('title', encodeURIComponent(formData.get('title')));
-    formData.set('description', encodeURIComponent(formData.get('description')));
-    formData.set('slug', encodeURIComponent(formData.get('slug')));
-    formData.set('tags', formData.get('tags').split(',').map(tag => encodeURIComponent(tag.trim())).join(','));
+    // Get selected tags
+    const selectedTags = Array.from(document.getElementById('edit-image-tags').selectedOptions).map(option => option.value);
+
+    // Create a JSON object to send
+    const updateData = {
+        title: encodeURIComponent(formData.get('title')),
+        description: encodeURIComponent(formData.get('description')),
+        slug: encodeURIComponent(formData.get('slug')),
+        sticky: formData.get('sticky') === 'on',
+        tags: selectedTags
+    };
 
     try {
-        await image.updateImage(id, formData);
+        await image.updateImage(id, updateData);
         alert('Image updated successfully');
         document.getElementById('editImageSection').style.display = 'none';
         await image.loadImages();
@@ -230,6 +237,31 @@ function setupLogoutButton() {
     }
 }
 
+function setupTagCreation() {
+    const addNewTagBtn = document.getElementById('add-new-tag-btn');
+    const newTagInput = document.getElementById('new-tag-input');
+    const tagSelect = document.getElementById('edit-image-tags');
+
+    if (addNewTagBtn && newTagInput && tagSelect) {
+        addNewTagBtn.addEventListener('click', async () => {
+            const tagName = newTagInput.value.trim();
+            if (tagName) {
+                try {
+                    const newTag = await tag.createTag(tagName, "");  // Using createTag instead of createTagIfNotExists
+                    const option = document.createElement('option');
+                    option.value = newTag.id;
+                    option.textContent = newTag.name;
+                    tagSelect.appendChild(option);
+                    option.selected = true;
+                    newTagInput.value = '';
+                } catch (error) {
+                    handleError(error);
+                }
+            }
+        });
+    }
+}
+
 export function showEditImageSection(id, title, description, imageSrc, slug, tags, sticky) {
     document.getElementById('imageSection').style.display = 'none';
     document.getElementById('tagSection').style.display = 'none';
@@ -240,9 +272,25 @@ export function showEditImageSection(id, title, description, imageSrc, slug, tag
     document.getElementById('edit-image-title').value = title;
     document.getElementById('edit-image-description').value = description;
     document.getElementById('edit-image-slug').value = slug;
-    document.getElementById('edit-image-tags').value = tags.join(', ');
     document.getElementById('edit-image-sticky').checked = sticky;
     document.getElementById('image-to-crop').src = imageSrc;
+
+    const tagSelect = document.getElementById('edit-image-tags');
+    tagSelect.innerHTML = '';
+
+    console.log('Image tags:', tags);  // Add this line
+
+    tag.loadTags().then((allTags) => {
+        console.log('All tags:', allTags);  // Add this line
+        allTags.forEach(tagOption => {
+            const option = document.createElement('option');
+            option.value = tagOption.id;
+            option.textContent = tagOption.name;
+            option.selected = tags.some(t => t.id === tagOption.id);
+            tagSelect.appendChild(option);
+            console.log('Created option:', option);  // Add this line
+        });
+    });
 
     if (cropper) {
         cropper.destroy();
@@ -259,6 +307,10 @@ export function deleteImage(id) {
 
 export function deleteTag(id) {
     return tag.deleteTag(id);
+}
+
+export function editTag(id, name, description) {
+    tag.showEditTagSection(id, name, description);
 }
 
 document.addEventListener('DOMContentLoaded', () => {

@@ -1,5 +1,6 @@
 # Project: luchoh.com refactoring
 # File: backend/app/crud/image.py
+
 from typing import List, Optional
 from sqlalchemy.orm import Session
 from app.models.image import Image, Tag
@@ -35,8 +36,10 @@ class CRUDImage(CRUDBase[Image, ImageCreate, ImageUpdate]):
 
     def update(self, db: Session, *, db_obj: Image, obj_in: ImageUpdate) -> Image:
         update_data = obj_in.dict(exclude_unset=True)
-        if 'title' in update_data and not update_data.get('slug'):
-            update_data['slug'] = generate_slug(update_data['title'])
+        if "title" in update_data and not update_data.get("slug"):
+            update_data["slug"] = generate_slug(update_data["title"])
+
+        # Handle tags separately
         tags = update_data.pop("tags", None)
 
         for field in update_data:
@@ -44,12 +47,10 @@ class CRUDImage(CRUDBase[Image, ImageCreate, ImageUpdate]):
 
         if tags is not None:
             db_obj.tags.clear()
-            for tag_name in tags:
-                tag = db.query(Tag).filter(Tag.name == tag_name).first()
-                if not tag:
-                    tag = Tag(name=tag_name)
-                    db.add(tag)
-                db_obj.tags.append(tag)
+            for tag_id in tags:
+                tag = db.query(Tag).filter(Tag.id == int(tag_id)).first()
+                if tag:
+                    db_obj.tags.append(tag)
 
         db.add(db_obj)
         db.commit()

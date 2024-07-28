@@ -5,6 +5,7 @@ import logging
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile, File, Form
 from sqlalchemy.orm import Session
+from urllib.parse import unquote
 from app.db.session import get_db
 from app.auth.auth import get_current_active_user
 from app.models.user import User
@@ -85,6 +86,7 @@ def read_image(
     image_dict["file_path"] = get_full_url(request, image.file_path)
     if image.thumbnail_url:
         image_dict["thumbnail_url"] = get_full_url(request, image.thumbnail_url)
+    image_dict["tags"] = [schemas.Tag.from_orm(tag) for tag in image.tags]
     return image_dict
 
 
@@ -101,8 +103,12 @@ def read_images(
             id=image.id,
             title=image.title,
             description=image.description,
-            file_path=image.file_path,
-            thumbnail_url=image.thumbnail_url,
+            file_path=get_full_url(request, image.file_path),
+            thumbnail_url=(
+                get_full_url(request, image.thumbnail_url)
+                if image.thumbnail_url
+                else None
+            ),
             slug=image.slug,
             sticky=image.sticky,
             tags=[schemas.Tag.from_orm(tag) for tag in image.tags],
@@ -125,13 +131,21 @@ def update_image(
     if not crud.user.is_superuser(current_user):
         raise HTTPException(status_code=403, detail="Not enough permissions")
 
+    # Decode URL-encoded data
+    if image_in.title:
+        image_in.title = unquote(image_in.title)
+    if image_in.description:
+        image_in.description = unquote(image_in.description)
+    if image_in.slug:
+        image_in.slug = unquote(image_in.slug)
+
     # Generate slug if title is provided and slug is not
     if image_in.title and not image_in.slug:
         image_in.slug = generate_slug(image_in.title)
 
-    # Convert tags from list to string if necessary
-    if isinstance(image_in.tags, list):
-        image_in.tags = ",".join(image_in.tags)
+    # Ensure tags are a list of integers
+    if image_in.tags:
+        image_in.tags = [int(tag_id) for tag_id in image_in.tags if tag_id.isdigit()]
 
     image = crud.image.update(db=db, db_obj=image, obj_in=image_in)
     return image
