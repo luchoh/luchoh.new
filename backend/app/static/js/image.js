@@ -53,23 +53,8 @@ export async function uploadImage(file, title, description) {
     return responseData;
 }
 
-export async function updateImage(id, formData) {
+export async function updateImage(id, updateData) {
     const token = getToken();
-
-    // Convert FormData to a plain object
-    const updateData = {};
-    for (let [key, value] of formData.entries()) {
-        if (key === 'tags') {
-            updateData[key] = value.split(',').map(tag => tag.trim());
-        } else if (key === 'sticky') {
-            updateData[key] = value === 'on';
-        } else {
-            updateData[key] = value;
-        }
-    }
-
-    // Remove id from updateData as it's in the URL
-    delete updateData.id;
 
     const response = await fetch(`/api/v1/images/${id}`, {
         method: 'PUT',
