@@ -40,6 +40,8 @@ export async function deleteTag(id) {
     if (!response.ok) {
         throw new Error('Failed to delete tag');
     }
+
+    return await loadTags(); // Reload tags after deletion
 }
 
 export function showEditTagSection(id, name, description) {
@@ -80,6 +82,7 @@ export async function updateTag(id, name, description) {
         throw new Error('Failed to update tag');
     }
 
+    await loadTags(); // Reload tags after update
     return await response.json();
 }
 
@@ -119,10 +122,10 @@ export async function loadTags() {
             });
         }
         console.log('Tags fetched successfully:', tags);
-        return tags;  // Make sure this line is present
+        return tags;
     } catch (error) {
         console.error('Error in loadTags:', error);
         handleError(error);
-        return [];  // Return an empty array in case of error
+        return [];
     }
 }

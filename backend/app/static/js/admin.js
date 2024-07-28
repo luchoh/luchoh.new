@@ -213,6 +213,7 @@ async function handleTagEdit(e) {
         await tag.updateTag(id, name, description);
         alert('Tag updated successfully');
         document.getElementById('editTagSection').style.display = 'none';
+        document.getElementById('tagSection').style.display = 'block';
         await tag.loadTags();
     } catch (error) {
         handleError(error);
@@ -306,7 +307,10 @@ export function deleteImage(id) {
 }
 
 export function deleteTag(id) {
-    return tag.deleteTag(id);
+    return tag.deleteTag(id).then(() => {
+        alert('Tag deleted successfully');
+        showTagSection();
+    }).catch(handleError);
 }
 
 export function editTag(id, name, description) {
