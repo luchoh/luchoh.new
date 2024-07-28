@@ -110,6 +110,28 @@ app.get('/image/:_id', async (req, res) => {
     }
 });
 
+app.get('/image/:id-:slug', async (req, res) => {
+    try {
+        const response = await fetch(`http://localhost:8000/api/v1/images/${req.params.id}-${req.params.slug}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log('Received image data:', data);
+        res.render('image.njk', {
+            image: data,
+            user: {
+                isAuthenticated: req.session && req.session.userId ? true : false
+            },
+            logoImage: '/images/luchoh-logo-invert.png',
+            bannerImage: '/images/banner.jpg'
+        });
+    } catch (error) {
+        console.error('Error fetching image:', error);
+        res.status(500).send('Error fetching image');
+    }
+});
+
 app.get('/admin', (req, res) => {
     res.render('admin.html');
 });

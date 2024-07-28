@@ -1,9 +1,9 @@
 {# Project: luchoh.com refactoring # File: frontend/src/_includes/partials/image.njk #}
 <div class="image index" itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
     {% if image.url %}
-        <a href="{{ image.url }}" class="swipebox" itemprop="contentUrl" title="{{ image.title }}">
+        <a href="/image/{{ image.id }}-{{ image.slug }}" class="swipebox" itemprop="contentUrl" title="{{ image.title }}">
             <img src="{{ image.thumbnail }}" alt="{{ image.title }}" class="center-align responsive-img">
-                <img src="/thumbnail/{{ image.slug }}" class="hide" itemprop="thumbnail"></a>
+                <img src="/thumbnail/{{ image.id }}-{{ image.slug }}" class="hide" itemprop="thumbnail"></a>
             {% else %}
                 <img src="{{ image.thumbnail }}" alt="{{ image.title }}" class="center-align responsive-img" delay="50" position="bottom" tooltip="Please login to view full-size images" itemprop="contentUrl">
                 {% endif %}

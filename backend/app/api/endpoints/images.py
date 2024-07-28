@@ -31,13 +31,22 @@ def get_full_url(request: Request, path: str) -> str:
     return f"{base_url}{path}"
 
 
+def generate_image_response(image: models.Image, request: Request) -> dict:
+    image_dict = image.__dict__.copy()
+    image_dict["file_path"] = get_full_url(request, image.file_path)
+    if image.thumbnail_url:
+        image_dict["thumbnail_url"] = get_full_url(request, image.thumbnail_url)
+    image_dict["tags"] = [schemas.Tag.from_orm(tag) for tag in image.tags]
+    image_dict["slug"] = generate_slug(image.title)
+    return image_dict
+
+
 @router.post("/", response_model=schemas.Image)
 async def create_image(
     request: Request,
     file: UploadFile = File(...),
     title: str = Form(...),
     description: str = Form(None),
-    slug: str = Form(...),
     sticky: bool = Form(False),
     tags: str = Form(""),
     db: Session = Depends(deps.get_db),
@@ -60,34 +69,42 @@ async def create_image(
         title=title,
         description=description,
         file_path=relative_path,
-        slug=slug,
         sticky=sticky,
         tags=tag_list,
     )
 
     try:
         image = crud.image.create(db=db, obj_in=image_in)
-        return image
+        return generate_image_response(image, request)
     except Exception as e:
         logger.error(f"Error creating image: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 
-@router.get("/{image_id}", response_model=schemas.Image)
+@router.get("/{image_id_slug}", response_model=schemas.Image)
 def read_image(
-    image_id: int,
+    image_id_slug: str,
     request: Request,
-    db: Session = Depends(deps.get_db),
+    db: Session = Depends(get_db),
 ):
+    try:
+        image_id = int(image_id_slug.split("-")[0])
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid image ID")
+
     image = crud.image.get(db=db, id=image_id)
     if image is None:
         raise HTTPException(status_code=404, detail="Image not found")
-    image_dict = image.__dict__
-    image_dict["file_path"] = get_full_url(request, image.file_path)
-    if image.thumbnail_url:
-        image_dict["thumbnail_url"] = get_full_url(request, image.thumbnail_url)
-    image_dict["tags"] = [schemas.Tag.from_orm(tag) for tag in image.tags]
-    return image_dict
+
+    # Verify that the slug matches
+    expected_slug = generate_slug(image.title)
+    provided_slug = "-".join(image_id_slug.split("-")[1:])
+    if provided_slug != expected_slug:
+        raise HTTPException(status_code=404, detail="Image not found")
+
+    response_data = generate_image_response(image, request)
+    logger.info(f"Image response data: {response_data}")
+    return response_data
 
 
 @router.get("/", response_model=List[schemas.Image])
@@ -98,23 +115,7 @@ def read_images(
     limit: int = 100,
 ):
     images = crud.image.get_multi(db, skip=skip, limit=limit)
-    return [
-        schemas.Image(
-            id=image.id,
-            title=image.title,
-            description=image.description,
-            file_path=get_full_url(request, image.file_path),
-            thumbnail_url=(
-                get_full_url(request, image.thumbnail_url)
-                if image.thumbnail_url
-                else None
-            ),
-            slug=image.slug,
-            sticky=image.sticky,
-            tags=[schemas.Tag.from_orm(tag) for tag in image.tags],
-        )
-        for image in images
-    ]
+    return [generate_image_response(image, request) for image in images]
 
 
 @router.put("/{image_id}", response_model=schemas.Image)
@@ -124,6 +125,7 @@ def update_image(
     image_id: int,
     image_in: schemas.ImageUpdate,
     current_user: models.User = Depends(deps.get_current_active_user),
+    request: Request,
 ):
     image = crud.image.get(db=db, id=image_id)
     if not image:
@@ -136,19 +138,13 @@ def update_image(
         image_in.title = unquote(image_in.title)
     if image_in.description:
         image_in.description = unquote(image_in.description)
-    if image_in.slug:
-        image_in.slug = unquote(image_in.slug)
-
-    # Generate slug if title is provided and slug is not
-    if image_in.title and not image_in.slug:
-        image_in.slug = generate_slug(image_in.title)
 
     # Ensure tags are a list of integers
     if image_in.tags:
         image_in.tags = [int(tag_id) for tag_id in image_in.tags if tag_id.isdigit()]
 
     image = crud.image.update(db=db, db_obj=image, obj_in=image_in)
-    return image
+    return generate_image_response(image, request)
 
 
 @router.delete("/{image_id}", response_model=schemas.Image)
@@ -157,6 +153,7 @@ def delete_image(
     db: Session = Depends(deps.get_db),
     image_id: int,
     current_user: models.User = Depends(deps.get_current_active_user),
+    request: Request,
 ):
     image = crud.image.get(db=db, id=image_id)
     if not image:
@@ -164,7 +161,7 @@ def delete_image(
     if not crud.user.is_superuser(current_user):
         raise HTTPException(status_code=403, detail="Not enough permissions")
     image = crud.image.remove(db=db, id=image_id)
-    return image
+    return generate_image_response(image, request)
 
 
 @router.post("/{image_id}/thumbnail", response_model=schemas.Image)
@@ -227,8 +224,4 @@ def read_sticky_images(
     limit: int = 100,
 ):
     images = crud.image.get_sticky_images(db, skip=skip, limit=limit)
-    for image in images:
-        image.file_path = get_full_url(request, image.file_path)
-        if image.thumbnail_url:
-            image.thumbnail_url = get_full_url(request, image.thumbnail_url)
-    return images
+    return [generate_image_response(image, request) for image in images]

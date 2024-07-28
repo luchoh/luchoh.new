@@ -1,19 +1,23 @@
 {# Project: luchoh.com refactoring # File: frontend/src/_includes/partials/photograph.njk #}
-{{#with image}}
+{% if image %}
     <div>
-        <h3 id="title" itemprop="name">{{ title }}</h3>
-        {% if description %}
-            <h4>{{ description }}</h4>
+        <h3 id="title" itemprop="name">{{ image.title }}</h3>
+        {% if image.description %}
+            <h4>{{ image.description }}</h4>
         {% endif %}
     </div>
     <div class="row">
         <div class="col s12 l12 m12 center-align">
-            {% if image.url %}
-                <img src="{{ image.url }}" alt="{{ title }}" class="center-align responsive-img">
-                    <img src="/thumbnail/{{ slug }}" class="hide" itemprop="thumbnail">
-                    {% else %}
-                        <img src="{{ image.thumbnail }}" alt="{{ title }}" class="center-align responsive-img" delay="50" position="bottom" tooltip="Please login to view full-size images">
+            {% if image.file_path %}
+                <img src="{{ image.file_path }}" alt="{{ image.title }}" class="center-align responsive-img">
+                    {% if image.thumbnail_url %}
+                        <img src="{{ image.thumbnail_url }}" class="hide" itemprop="thumbnail">
                         {% endif %}
-                    </div>
+                    {% else %}
+                        <p>Image file not available</p>
+                    {% endif %}
                 </div>
-                {% endwith %}
+            </div>
+        {% else %}
+            <p>No image data available</p>
+        {% endif %}

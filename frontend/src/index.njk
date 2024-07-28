@@ -9,7 +9,7 @@
                         <div class="image-grid">
                             {% for image in images %}
                                 <div class="col s12 l3 m6 featured-photo">
-                                    <a href="{{ image.file_path }}" data-lightbox="image-gallery" data-title="{{ image.title }}">
+                                    <a href="/image/{{ image.id }}-{{ image.slug }}" data-lightbox="image-gallery" data-title="{{ image.title }}">
                                         <img src="{{ image.thumbnail_url or image.file_path }}" alt="{{ image.title }}" class="lazyload responsive-img"></a>
                                         <p class="image-title">{{ image.title }}</p>
                                     </div>

@@ -16,7 +16,7 @@ class CRUDImage(CRUDBase[Image, ImageCreate, ImageUpdate]):
             description=obj_in.description,
             file_path=obj_in.file_path,
             thumbnail_url=obj_in.thumbnail_url,
-            slug=obj_in.slug or generate_slug(obj_in.title),
+            # slug=obj_in.slug or generate_slug(obj_in.title),
             sticky=obj_in.sticky if obj_in.sticky is not None else False,
         )
         db.add(db_obj)
@@ -36,8 +36,8 @@ class CRUDImage(CRUDBase[Image, ImageCreate, ImageUpdate]):
 
     def update(self, db: Session, *, db_obj: Image, obj_in: ImageUpdate) -> Image:
         update_data = obj_in.dict(exclude_unset=True)
-        if "title" in update_data and not update_data.get("slug"):
-            update_data["slug"] = generate_slug(update_data["title"])
+        # if "title" in update_data and not update_data.get("slug"):
+        #     update_data["slug"] = generate_slug(update_data["title"])
 
         # Handle tags separately
         tags = update_data.pop("tags", None)

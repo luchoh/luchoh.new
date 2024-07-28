@@ -1,1 +1,1 @@
-As always - you have the latest and greatest files. Please consult them before making decisions and always provide complete files.
+Please review all relevant files in the provided context before responding or suggesting changes and provide a brief summary of the relevant files.

@@ -3,7 +3,7 @@
 
 from typing import List, Optional
 from pydantic import BaseModel, Field
-from .tag import Tag as TagSchema  # Import the Tag schema
+from .tag import Tag as TagSchema
 
 
 class ImageBase(BaseModel):
@@ -11,7 +11,6 @@ class ImageBase(BaseModel):
     description: Optional[str] = None
     file_path: str = Field(..., min_length=1)
     thumbnail_url: Optional[str] = None
-    slug: Optional[str] = Field(None, min_length=1)
     sticky: Optional[bool] = False
 
 
@@ -24,21 +23,26 @@ class ImageUpdate(BaseModel):
     description: Optional[str] = None
     file_path: Optional[str] = None
     thumbnail_url: Optional[str] = None
-    slug: Optional[str] = None
     tags: Optional[List[str]] = None
     sticky: Optional[bool] = None
 
 
 class ImageInDBBase(ImageBase):
     id: int
-    tags: List[TagSchema] = []  # Use the TagSchema here
+    tags: List[TagSchema] = []
 
     class Config:
         from_attributes = True
 
 
 class Image(ImageInDBBase):
-    pass
+    slug: str
+    file_path: str
+    thumbnail_url: Optional[str]
+    tags: List[TagSchema] = []
+
+    class Config:
+        orm_mode = True
 
 
 class ImageInDB(ImageInDBBase):
