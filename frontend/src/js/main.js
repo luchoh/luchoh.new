@@ -1,5 +1,6 @@
 /*Project: luchoh.com refactoring
 File: frontend/src/js/main.js*/
+
 async function fetchGalleries() {
     try {
         const response = await fetch('/api/v1/galleries/');
@@ -60,5 +61,28 @@ document.addEventListener('DOMContentLoaded', () => {
         mobileMenuToggle.addEventListener('click', () => {
             mobileMenu.classList.toggle('active');
         });
+    }
+
+    // Initialize dropdown
+    var dropdownElems = document.querySelectorAll('.dropdown-trigger');
+    var dropdownInstances = M.Dropdown.init(dropdownElems, {
+        coverTrigger: false,
+        constrainWidth: false
+    });
+
+    // Initialize Lightbox
+    if (typeof lightbox !== 'undefined') {
+        lightbox.option({
+            'resizeDuration': 200,
+            'wrapAround': true,
+            'albumLabel': "Image %1 of %2",
+            'fadeDuration': 300
+        });
+    }
+});
+
+window.addEventListener('load', function () {
+    if (typeof lightbox !== 'undefined') {
+        lightbox.init();
     }
 });

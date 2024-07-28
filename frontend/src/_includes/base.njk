@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% if title %}{{ title }} | {% endif %}luchoH Photography</title>
     <link rel="stylesheet" href="/css/materialize.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css">
     <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
@@ -30,6 +31,8 @@
     </div>
 
     <script src="/js/materialize.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox-plus-jquery.min.js"></script>
     <script src="/js/main.js"></script>
+    {% block scripts %}{% endblock %}
 </body>
 </html>

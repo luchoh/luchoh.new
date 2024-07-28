@@ -219,6 +219,116 @@ ul.menu ul ul {
     margin-bottom: 8px;
 }
 
+.single-image-container {
+    margin-top: 2rem;
+}
+
+.single-image-container img {
+    max-width: 100%;
+    height: auto;
+}
+
+.single-image-title {
+    color: #B1B1B1;
+    font-size: 1.5em;
+    margin-top: 1rem;
+}
+
+.single-image-description {
+    color: #888;
+    font-size: 1em;
+    margin-top: 0.5rem;
+}
+
+.dropdown-content {
+    background-color: #333;
+}
+
+.dropdown-content li>a {
+    color: #B1B1B1;
+}
+
+.dropdown-content li>a:hover {
+    background-color: #444;
+    color: #fff;
+}
+
+.tag-list {
+    margin: 0;
+    padding: 0;
+}
+
+.tag-list li {
+    list-style-type: none;
+}
+
+.sidenav {
+    background-color: #222;
+}
+
+.sidenav li>a {
+    color: #B1B1B1;
+}
+
+.sidenav li>a:hover {
+    background-color: #333;
+    color: #fff;
+}
+
+.sidenav .subheader {
+    color: #666;
+}
+
+.sidenav .divider {
+    background-color: #444;
+}
+
+.image-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.featured-photo {
+    margin-bottom: 20px;
+    transition: transform 0.3s ease;
+}
+
+.featured-photo:hover {
+    transform: scale(1.05);
+}
+
+.featured-photo img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    aspect-ratio: 1 / 1;
+}
+
+.image-title {
+    margin-top: 5px;
+    font-size: 0.9em;
+    color: #B1B1B1;
+    text-align: center;
+}
+
+/* Lightbox customization */
+.lb-outerContainer {
+    background-color: #222;
+}
+
+.lb-dataContainer {
+    background-color: #222;
+}
+
+.lb-data .lb-caption {
+    color: #B1B1B1;
+}
+
+.lb-data .lb-number {
+    color: #888;
+}
+
 /* Materialize overrides */
 .col {
     padding: 0 11.25px;
