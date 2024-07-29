@@ -6,6 +6,7 @@ const nunjucks = require('nunjucks');
 const fetch = require('node-fetch');
 const path = require('path');
 const { DateTime } = require('luxon');
+const config = require('./config');
 
 const app = express();
 const port = 3333;
@@ -34,10 +35,10 @@ app.use('/js', express.static(path.join(__dirname, 'node_modules/materialize-css
 // Define routes
 app.get('/', async (req, res) => {
     try {
-        const tagsResponse = await fetch('http://localhost:8000/api/v1/tags/');
+        const tagsResponse = await fetch(`${config.apiBaseUrl}/tags/`);
         const tags = await tagsResponse.json();
 
-        const imagesResponse = await fetch('http://localhost:8000/api/v1/images/');
+        const imagesResponse = await fetch(`${config.apiBaseUrl}/images/`);
         const images = await imagesResponse.json();
 
         console.log(tags);
@@ -61,13 +62,13 @@ app.get('/', async (req, res) => {
 app.get('/tag/:tagName', async (req, res) => {
     try {
         const tagName = req.params.tagName;
-        const tagResponse = await fetch(`http://localhost:8000/api/v1/tags/${tagName}`);
+        const tagResponse = await fetch(`${config.apiBaseUrl}/tags/${tagName}`);
         const tag = await tagResponse.json();
 
-        const imagesResponse = await fetch(`http://localhost:8000/api/v1/tags/${tagName}/images`);
+        const imagesResponse = await fetch(`${config.apiBaseUrl}/tags/${tagName}/images`);
         const images = await imagesResponse.json();
 
-        const tagsResponse = await fetch('http://localhost:8000/api/v1/tags/');
+        const tagsResponse = await fetch(`${config.apiBaseUrl}/tags/`);
         const tags = await tagsResponse.json();
 
         res.render('tag.njk', {
@@ -89,10 +90,10 @@ app.get('/tag/:tagName', async (req, res) => {
 app.get('/image/:_id', async (req, res) => {
     try {
         const imageId = req.params._id;
-        const imageResponse = await fetch(`http://localhost:8000/api/v1/images/${imageId}`);
+        const imageResponse = await fetch(`${config.apiBaseUrl}/images/${imageId}`);
         const image = await imageResponse.json();
 
-        const tagsResponse = await fetch('http://localhost:8000/api/v1/tags/');
+        const tagsResponse = await fetch(`${config.apiBaseUrl}/tags/`);
         const tags = await tagsResponse.json();
 
         res.render('image.njk', {
@@ -112,7 +113,7 @@ app.get('/image/:_id', async (req, res) => {
 
 app.get('/image/:id-:slug', async (req, res) => {
     try {
-        const response = await fetch(`http://localhost:8000/api/v1/images/${req.params.id}-${req.params.slug}`);
+        const response = await fetch(`${config.apiBaseUrl}/images/${req.params.id}-${req.params.slug}`);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }

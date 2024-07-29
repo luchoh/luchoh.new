@@ -2,7 +2,10 @@
 
 {
   # https://devenv.sh/basics/
-  env.GREET = "luchoh.com";
+  env = {
+    GREET = "luchoh.com";
+    API_BASE_URL = "http://localhost:8000/api/v1";
+  };
 
   # https://devenv.sh/packages/
   packages = [ pkgs.git pkgs.poetry pkgs.pkg-config ];
