@@ -1,6 +1,7 @@
 # Project: luchoh.com refactoring
 # File: backend/app/models/image.py
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Boolean, Table
+
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Table
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.db.base_class import Base
@@ -21,7 +22,6 @@ class Image(Base):
     description = Column(String(500))
     file_path = Column(String(255))
     thumbnail_url = Column(String(255), nullable=True)
-    sticky = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 

@@ -11,6 +11,7 @@ from app.auth.auth import get_current_active_user
 from app.models.user import User
 from app.utils.file import generate_file_path
 from app.utils.slugify import generate_slug
+from app.utils.image import get_full_url, generate_image_response
 
 from app.api import deps
 from app import crud, models, schemas
@@ -24,21 +25,6 @@ logger = logging.getLogger(__name__)
 logger.info("Images module loaded")
 
 router = APIRouter()
-
-
-def get_full_url(request: Request, path: str) -> str:
-    base_url = f"{request.base_url}"
-    return f"{base_url}{path}"
-
-
-def generate_image_response(image: models.Image, request: Request) -> dict:
-    image_dict = image.__dict__.copy()
-    image_dict["file_path"] = get_full_url(request, image.file_path)
-    if image.thumbnail_url:
-        image_dict["thumbnail_url"] = get_full_url(request, image.thumbnail_url)
-    image_dict["tags"] = [schemas.Tag.from_orm(tag) for tag in image.tags]
-    image_dict["slug"] = generate_slug(image.title)
-    return image_dict
 
 
 @router.post("/", response_model=schemas.Image)
@@ -216,12 +202,17 @@ async def create_thumbnail(
     return image
 
 
-@router.get("/sticky", response_model=List[schemas.Image])
-def read_sticky_images(
+@router.get("/by_tag/{tag_name}", response_model=List[schemas.Image])
+def read_images_by_tag(
+    tag_name: str,
     request: Request,
     db: Session = Depends(deps.get_db),
     skip: int = 0,
     limit: int = 100,
 ):
-    images = crud.image.get_sticky_images(db, skip=skip, limit=limit)
+    tag = crud.tag.get_by_name(db, name=tag_name)
+    if not tag:
+        raise HTTPException(status_code=404, detail="Tag not found")
+
+    images = crud.image.get_tag_images_by_id(db, tag_id=tag.id, skip=skip, limit=limit)
     return [generate_image_response(image, request) for image in images]

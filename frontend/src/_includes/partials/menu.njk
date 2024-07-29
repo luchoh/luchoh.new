@@ -2,7 +2,7 @@
 <ul class="menu right hide-on-med-and-down">
     {% for tag in tags %}
         <li>
-            <a href="/tags/{{ tag.id }}/images" title="{{ tag.description }}">{{ tag.name }}</a>
+            <a href="/tag/{{ tag.id }}/images" class="tag-link" data-tag="{{ tag.name }}">{{ tag.name }}</a>
         </li>
     {% endfor %}
     {% if user.isAuthenticated %}

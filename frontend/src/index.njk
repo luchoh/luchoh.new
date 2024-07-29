@@ -1,17 +1,21 @@
 {# Project: luchoh.com refactoring # File: frontend/src/index.njk #}
 {% extends "base.njk" %}
 {% block content %}
-    <div itemscope itemtype="http://schema.org/ImageGallery">
-        <div class="row">
-            <div class="col s12 center-align">
-                <div class="row">
-                    <div id="latest-photos" class="col s12 center-align">
-                        <div class="image-grid">
+    <div class="row">
+        <div class="col s12 center-align">
+            <div class="row">
+                <div id="image-list" class="col s12 center-align">
+                    <div class="latest-photos">
+                        <div class="row">
                             {% for image in images %}
-                                <div class="col s12 l3 m6 featured-photo">
-                                    <a href="/image/{{ image.id }}-{{ image.slug }}" data-lightbox="image-gallery" data-title="{{ image.title }}">
-                                        <img src="{{ image.thumbnail_url or image.file_path }}" alt="{{ image.title }}" class="lazyload responsive-img"></a>
-                                        <p class="image-title">{{ image.title }}</p>
+                                <div class="col s12 m6 l3 featured-photo">
+                                    <div class="image index" itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+                                        <a class="swipebox" itemprop="contentUrl" href="/image/{{ image.id }}-{{ image.slug }}" title="{{ image.title }}">
+                                            <img src="{{ image.thumbnail_url or image.file_path }}" alt="{{ image.title }}" class="lazyload center-align responsive-img" itemprop="thumbnail"></a>
+                                            <div class="window title">
+                                                <h3 class="image-title" itemprop="name">{{ image.title }}</h3>
+                                            </div>
+                                        </div>
                                     </div>
                                 {% endfor %}
                             </div>
@@ -23,7 +27,4 @@
                 <p>No images found. Please make sure your API is running and returning data.</p>
             {% endif %}
         </div>
-    {% endblock %}
-    {% block scripts %}
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/lazysizes/5.3.2/lazysizes.min.js"></script>
     {% endblock %}

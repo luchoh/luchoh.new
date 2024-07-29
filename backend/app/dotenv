@@ -1,0 +1,9 @@
+SECRET_KEY=YOUR_SECRET_KEY
+DATABASE_URL=mysql+pymysql://luchoh@localhost/luchoh_photography
+FIRST_SUPERUSER=luchoh@luchoh.com
+FIRST_SUPERUSER_PASSWORD=changethis
+ALGORITHM=HS256
+
+API_V1_STR=/api/v1
+
+BACKEND_CORS_ORIGINS=["http://localhost","http://localhost:8080","http://localhost:3000","http://localhost:3333"]

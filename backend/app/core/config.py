@@ -4,6 +4,14 @@
 import os
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import List
+import json
+
+# Get the directory of the current file
+current_dir = os.path.dirname(os.path.abspath(__file__))
+# Go up one level to the 'app' directory
+app_dir = os.path.dirname(current_dir)
+# Construct the path to the .env file
+env_file_path = os.path.join(app_dir, ".env")
 
 
 class Settings(BaseSettings):
@@ -16,19 +24,21 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "mysql+pymysql://luchoh@localhost/luchoh_photography"
 
     # CORS settings
-    BACKEND_CORS_ORIGINS: List[str] = [
-        "http://localhost",
-        "http://localhost:8080",
-        "http://localhost:3000",
-    ]
+    BACKEND_CORS_ORIGINS: str = "[]"
 
     # Superuser settings
     FIRST_SUPERUSER: str = "admin@example.com"
     FIRST_SUPERUSER_PASSWORD: str = "changethis"
 
-    UPLOAD_DIRECTORY: str = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "../uploads")
+    UPLOAD_DIRECTORY: str = os.path.join(app_dir, "../uploads")
 
-    model_config = SettingsConfigDict(env_file=".env", case_sensitive=True)
+    model_config = SettingsConfigDict(env_file=env_file_path, case_sensitive=True)
+
+    @property
+    def BACKEND_CORS_ORIGINS_LIST(self) -> List[str]:
+        return json.loads(self.BACKEND_CORS_ORIGINS)
 
 
 settings = Settings()
+
+print("Loaded BACKEND_CORS_ORIGINS:", settings.BACKEND_CORS_ORIGINS_LIST)

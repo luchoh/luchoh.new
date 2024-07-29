@@ -1,59 +1,58 @@
 /*Project: luchoh.com refactoring
 File: frontend/src/js/main.js*/
 
-async function fetchGalleries() {
+let apiBaseUrl = '';
+
+async function fetchConfig() {
+    const response = await fetch('/config');
+    const config = await response.json();
+    apiBaseUrl = config.apiBaseUrl;
+}
+
+async function fetchImagesByTag(tagName) {
     try {
-        const response = await fetch('/api/v1/galleries/');
-        const galleries = await response.json();
-        const galleryList = document.getElementById('gallery-list');
-        galleries.forEach(gallery => {
-            const li = document.createElement('li');
-            li.innerHTML = `<a href="/gallery/${gallery.slug}/">${gallery.title}</a>`;
-            galleryList.appendChild(li);
-        });
+        const response = await fetch(`/tag/${tagName}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const html = await response.text();
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = html;
+        const newImageList = tempDiv.querySelector('#image-list');
+        if (newImageList) {
+            document.getElementById('image-list').innerHTML = newImageList.innerHTML;
+        }
+        setupLightbox();
     } catch (error) {
-        console.error('Error fetching galleries:', error);
+        console.error('Error fetching images by tag:', error);
     }
 }
 
-async function fetchImages(gallerySlug) {
-    try {
-        const response = await fetch(`/api/v1/galleries/${gallerySlug}/images`);
-        const images = await response.json();
-        const imageList = document.getElementById('image-list');
-        images.forEach(image => {
-            const div = document.createElement('div');
-            div.innerHTML = `
-                <a href="/image/${image.slug}/">
-                    <img src="${image.thumbnail}" alt="${image.title}">
-                    <p>${image.title}</p>
-                </a>
-            `;
-            imageList.appendChild(div);
+function setupTagNavigation() {
+    const tagLinks = document.querySelectorAll('.tag-link');
+    tagLinks.forEach(link => {
+        link.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const tagName = e.target.dataset.tag;
+            await fetchImagesByTag(tagName);
+            history.pushState(null, '', `/tag/${tagName}`);
         });
-    } catch (error) {
-        console.error('Error fetching images:', error);
+    });
+}
+
+function setupLightbox() {
+    if (typeof lightbox !== 'undefined') {
+        lightbox.option({
+            'resizeDuration': 200,
+            'wrapAround': true,
+            'albumLabel': "Image %1 of %2",
+            'fadeDuration': 300
+        });
+        lightbox.init();
     }
 }
 
-// Call these functions when the DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    const galleryList = document.getElementById('gallery-list');
-    const imageList = document.getElementById('image-list');
-
-    var elems = document.querySelectorAll('.sidenav');
-    var instances = M.Sidenav.init(elems);
-
-    if (galleryList) {
-        fetchGalleries();
-    }
-
-    if (imageList) {
-        const gallerySlug = imageList.dataset.gallerySlug;
-        fetchImages(gallerySlug);
-    }
-
-    // Mobile menu toggle
+function setupMobileMenu() {
     const mobileMenuToggle = document.querySelector('.button-collapse');
     const mobileMenu = document.querySelector('#mobile-menu');
 
@@ -62,20 +61,11 @@ document.addEventListener('DOMContentLoaded', () => {
             mobileMenu.classList.toggle('active');
         });
     }
+}
 
-    // Initialize Lightbox
-    if (typeof lightbox !== 'undefined') {
-        lightbox.option({
-            'resizeDuration': 200,
-            'wrapAround': true,
-            'albumLabel': "Image %1 of %2",
-            'fadeDuration': 300
-        });
-    }
-});
-
-window.addEventListener('load', function () {
-    if (typeof lightbox !== 'undefined') {
-        lightbox.init();
-    }
+document.addEventListener('DOMContentLoaded', async () => {
+    await fetchConfig();
+    setupTagNavigation();
+    setupLightbox();
+    setupMobileMenu();
 });

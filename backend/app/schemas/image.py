@@ -11,7 +11,6 @@ class ImageBase(BaseModel):
     description: Optional[str] = None
     file_path: str = Field(..., min_length=1)
     thumbnail_url: Optional[str] = None
-    sticky: Optional[bool] = False
 
 
 class ImageCreate(ImageBase):
@@ -24,7 +23,6 @@ class ImageUpdate(BaseModel):
     file_path: Optional[str] = None
     thumbnail_url: Optional[str] = None
     tags: Optional[List[str]] = None
-    sticky: Optional[bool] = None
 
 
 class ImageInDBBase(ImageBase):
