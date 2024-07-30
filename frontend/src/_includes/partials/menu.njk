@@ -5,15 +5,15 @@
             <a href="/tag/{{ tag.id }}/images" class="tag-link" data-tag="{{ tag.name }}">{{ tag.name }}</a>
         </li>
     {% endfor %}
-    {% if user.isAuthenticated %}
-        <li>
-            <a class="content-signin" href="/admin">Manage</a>
-        </li>
-    {% else %}
-        <li>
-            <a class="content-signin" href="/admin">Sign In</a>
-        </li>
-    {% endif %}
+    <li id="auth-menu-item">
+        <a href="#" id="auth-action" class="modal-trigger" data-target="login-modal">Sign In</a>
+    </li>
+    <li id="sign-out-menu-item" style="display: none;">
+        <a href="#" id="sign-out-action">Sign Out</a>
+    </li>
+    <li id="manage-menu-item" style="display: none;">
+        <a href="/admin" class="content-manage">Manage</a>
+    </li>
 </ul>
 <ul id="mobile-menu" class="sidenav">
     {% for tag in tags %}
@@ -22,13 +22,13 @@
         </li>
     {% endfor %}
     <li class="divider"></li>
-    {% if user.isAuthenticated %}
-        <li>
-            <a class="content-signin" href="/admin">Manage</a>
-        </li>
-    {% else %}
-        <li>
-            <a class="content-signin" href="/admin">Sign In</a>
-        </li>
-    {% endif %}
+    <li id="auth-menu-item-mobile">
+        <a href="#" id="auth-action-mobile" class="modal-trigger" data-target="login-modal">Sign In</a>
+    </li>
+    <li id="sign-out-menu-item-mobile" style="display: none;">
+        <a href="#" id="sign-out-action-mobile">Sign Out</a>
+    </li>
+    <li id="manage-menu-item-mobile" style="display: none;">
+        <a href="/admin" class="content-manage">Manage</a>
+    </li>
 </ul>

@@ -63,9 +63,144 @@ function setupMobileMenu() {
     }
 }
 
+function isLoggedIn() {
+    return !!localStorage.getItem('token');
+}
+
+async function checkLoginStatus() {
+    const token = localStorage.getItem('token');
+    if (!token) return false;
+
+    try {
+        const response = await fetch(`${apiBaseUrl}/auth/login/test-token`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        return response.ok;
+    } catch (error) {
+        console.error('Error checking login status:', error);
+        return false;
+    }
+}
+
+async function checkSuperuserStatus() {
+    const token = localStorage.getItem('token');
+    if (!token) return false;
+
+    try {
+        const response = await fetch(`${apiBaseUrl}/auth/login/test-token`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        if (response.ok) {
+            const userData = await response.json();
+            return userData.is_superuser;
+        }
+        return false;
+    } catch (error) {
+        console.error('Error checking superuser status:', error);
+        return false;
+    }
+}
+
+async function login(username, password) {
+    try {
+        const response = await fetch(`${apiBaseUrl}/auth/token`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`,
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            localStorage.setItem('token', data.access_token);
+            return true;
+        }
+        return false;
+    } catch (error) {
+        console.error('Login error:', error);
+        return false;
+    }
+}
+
+function logout() {
+    localStorage.removeItem('token');
+    updateAuthUI();
+}
+
+function updateAuthUI() {
+    const loggedIn = isLoggedIn();
+    const authMenuItem = document.getElementById('auth-menu-item');
+    const authMenuItemMobile = document.getElementById('auth-menu-item-mobile');
+    const signOutMenuItem = document.getElementById('sign-out-menu-item');
+    const signOutMenuItemMobile = document.getElementById('sign-out-menu-item-mobile');
+    const manageMenuItem = document.getElementById('manage-menu-item');
+    const manageMenuItemMobile = document.getElementById('manage-menu-item-mobile');
+
+    if (loggedIn) {
+        authMenuItem.style.display = 'none';
+        authMenuItemMobile.style.display = 'none';
+        signOutMenuItem.style.display = 'inline-block';
+        signOutMenuItemMobile.style.display = 'block';
+
+        checkSuperuserStatus().then(isSuperuser => {
+            manageMenuItem.style.display = isSuperuser ? 'inline-block' : 'none';
+            manageMenuItemMobile.style.display = isSuperuser ? 'block' : 'none';
+        });
+    } else {
+        authMenuItem.style.display = 'inline-block';
+        authMenuItemMobile.style.display = 'block';
+        signOutMenuItem.style.display = 'none';
+        signOutMenuItemMobile.style.display = 'none';
+        manageMenuItem.style.display = 'none';
+        manageMenuItemMobile.style.display = 'none';
+    }
+}
+
+function setupAuthUI() {
+    const loginModal = M.Modal.init(document.getElementById('login-modal'));
+
+    const loginForm = document.getElementById('login-form');
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const success = await login(username, password);
+        if (success) {
+            loginModal.close();
+            updateAuthUI();
+            loginForm.reset();
+        } else {
+            alert('Login failed. Please check your credentials.');
+        }
+    });
+
+    const signOutAction = document.getElementById('sign-out-action');
+    const signOutActionMobile = document.getElementById('sign-out-action-mobile');
+
+    signOutAction.addEventListener('click', (e) => {
+        e.preventDefault();
+        logout();
+    });
+
+    signOutActionMobile.addEventListener('click', (e) => {
+        e.preventDefault();
+        logout();
+    });
+
+    updateAuthUI();
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     await fetchConfig();
     setupTagNavigation();
     setupLightbox();
     setupMobileMenu();
+    setupAuthUI();
 });
