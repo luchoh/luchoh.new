@@ -15,6 +15,7 @@ class ImageBase(BaseModel):
 
 class ImageCreate(ImageBase):
     tags: List[str] = []
+    sticky: bool = False
 
 
 class ImageUpdate(BaseModel):
@@ -22,7 +23,8 @@ class ImageUpdate(BaseModel):
     description: Optional[str] = None
     file_path: Optional[str] = None
     thumbnail_url: Optional[str] = None
-    tags: Optional[List[str]] = None
+    tags: Optional[List[int]] = None
+    sticky: Optional[bool] = None
 
 
 class ImageInDBBase(ImageBase):

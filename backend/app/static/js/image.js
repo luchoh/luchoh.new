@@ -119,6 +119,9 @@ export async function loadImages() {
         imagesList.innerHTML = '';
 
         images.forEach(img => {
+            const isSticky = img.tags.some(tag => tag.name === 'sticky');
+            const displayTags = img.tags.filter(tag => tag.name !== 'sticky');
+
             const imageElement = document.createElement('div');
             imageElement.className = 'image-item';
             imageElement.dataset.id = img.id;
@@ -126,14 +129,16 @@ export async function loadImages() {
             imageElement.dataset.description = img.description;
             imageElement.dataset.filePath = img.file_path;
             imageElement.dataset.slug = img.slug;
-            imageElement.dataset.tags = JSON.stringify(img.tags);
-            imageElement.dataset.sticky = img.sticky;
+            imageElement.dataset.tags = JSON.stringify(displayTags);
+            imageElement.dataset.sticky = isSticky;
 
             imageElement.innerHTML = `
                 <h3>${escapeHtml(img.title)}</h3>
                 <p>${escapeHtml(img.description)}</p>
                 <img src="${escapeHtml(img.file_path)}" alt="${escapeHtml(img.title)}" style="max-width: 200px;">
                 <img class="thumbnail" src="${escapeHtml(img.thumbnail_url || img.file_path)}" alt="Thumbnail" style="max-width: 100px;">
+                <p>Tags: ${displayTags.map(tag => escapeHtml(tag.name)).join(', ')}</p>
+                <p>Sticky: ${isSticky ? 'Yes' : 'No'}</p>
                 <button class="edit-image">Edit</button>
                 <button class="delete-image">Delete</button>
             `;

@@ -8,6 +8,20 @@ import { handleError } from './utils.js';
 
 let cropper;
 
+let stickyTagId = null;
+
+async function initializeTags() {
+    try {
+        const tags = await tag.loadTags();
+        const stickyTag = tags.find(t => t.name === 'sticky');
+        if (stickyTag) {
+            stickyTagId = stickyTag.id;
+        }
+    } catch (error) {
+        console.error('Error initializing tags:', error);
+    }
+}
+
 async function initializeAdmin() {
     console.log('Initializing admin page');
     setupLoginForm();
@@ -183,14 +197,19 @@ async function handleImageEdit(e) {
     const id = document.getElementById('edit-image-id').value;
 
     // Get selected tags
-    const selectedTags = Array.from(document.getElementById('edit-image-tags').selectedOptions).map(option => option.value);
+    const selectedTags = Array.from(document.getElementById('edit-image-tags').selectedOptions).map(option => parseInt(option.value, 10));
+
+    // Check if sticky is checked and add sticky tag ID if it exists
+    const isSticky = document.getElementById('edit-image-sticky').checked;
+    if (isSticky && stickyTagId !== null) {
+        selectedTags.push(stickyTagId);
+    }
 
     // Create a JSON object to send
     const updateData = {
         title: encodeURIComponent(formData.get('title')),
         description: encodeURIComponent(formData.get('description')),
         slug: encodeURIComponent(formData.get('slug')),
-        sticky: formData.get('sticky') === 'on',
         tags: selectedTags
     };
 
@@ -279,19 +298,23 @@ export function showEditImageSection(id, title, description, imageSrc, slug, tag
     const tagSelect = document.getElementById('edit-image-tags');
     tagSelect.innerHTML = '';
 
-    console.log('Image tags:', tags);  // Add this line
+    console.log('Image tags:', tags);
 
     tag.loadTags().then((allTags) => {
-        console.log('All tags:', allTags);  // Add this line
+        console.log('All tags:', allTags);
         allTags.forEach(tagOption => {
-            const option = document.createElement('option');
-            option.value = tagOption.id;
-            option.textContent = tagOption.name;
-            option.selected = tags.some(t => t.id === tagOption.id);
-            tagSelect.appendChild(option);
-            console.log('Created option:', option);  // Add this line
+            if (tagOption.name !== 'sticky') {
+                const option = document.createElement('option');
+                option.value = tagOption.id;
+                option.textContent = tagOption.name;
+                option.selected = tags.some(t => t.id === tagOption.id);
+                tagSelect.appendChild(option);
+                console.log('Created option:', option);
+            }
         });
     });
+
+    document.getElementById('edit-image-sticky').checked = sticky;
 
     if (cropper) {
         cropper.destroy();
@@ -322,4 +345,5 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('Error during admin initialization:', error);
         handleError(error);
     });
+    initializeTags();
 });

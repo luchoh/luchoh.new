@@ -127,7 +127,9 @@ def update_image(
 
     # Ensure tags are a list of integers
     if image_in.tags:
-        image_in.tags = [int(tag_id) for tag_id in image_in.tags if tag_id.isdigit()]
+        image_in.tags = [
+            int(tag_id) for tag_id in image_in.tags if str(tag_id).isdigit()
+        ]
 
     image = crud.image.update(db=db, db_obj=image, obj_in=image_in)
     return generate_image_response(image, request)

@@ -16,8 +16,7 @@ class CRUDImage(CRUDBase[Image, ImageCreate, ImageUpdate]):
             description=obj_in.description,
             file_path=obj_in.file_path,
             thumbnail_url=obj_in.thumbnail_url,
-            # slug=obj_in.slug or generate_slug(obj_in.title),
-            sticky=obj_in.sticky if obj_in.sticky is not None else False,
+            slug=generate_slug(obj_in.title),
         )
         db.add(db_obj)
         db.commit()
@@ -30,27 +29,51 @@ class CRUDImage(CRUDBase[Image, ImageCreate, ImageUpdate]):
                 db.add(tag)
             db_obj.tags.append(tag)
 
+        # Handle sticky flag
+        if obj_in.sticky:
+            sticky_tag = db.query(Tag).filter(Tag.name == "sticky").first()
+            if not sticky_tag:
+                sticky_tag = Tag(name="sticky")
+                db.add(sticky_tag)
+            db_obj.tags.append(sticky_tag)
+
         db.commit()
         db.refresh(db_obj)
         return db_obj
 
     def update(self, db: Session, *, db_obj: Image, obj_in: ImageUpdate) -> Image:
         update_data = obj_in.dict(exclude_unset=True)
-        # if "title" in update_data and not update_data.get("slug"):
-        #     update_data["slug"] = generate_slug(update_data["title"])
 
         # Handle tags separately
         tags = update_data.pop("tags", None)
+
+        # Handle sticky separately
+        sticky = update_data.pop("sticky", None)
+
+        # Update slug if title is changed
+        if "title" in update_data:
+            update_data["slug"] = generate_slug(update_data["title"])
 
         for field in update_data:
             setattr(db_obj, field, update_data[field])
 
         if tags is not None:
-            db_obj.tags.clear()
+            db_obj.tags = []
             for tag_id in tags:
-                tag = db.query(Tag).filter(Tag.id == int(tag_id)).first()
+                tag = db.query(Tag).filter(Tag.id == tag_id).first()
                 if tag:
                     db_obj.tags.append(tag)
+
+        if sticky is not None:
+            sticky_tag = db.query(Tag).filter(Tag.name == "sticky").first()
+            if not sticky_tag:
+                sticky_tag = Tag(name="sticky")
+                db.add(sticky_tag)
+
+            if sticky and sticky_tag not in db_obj.tags:
+                db_obj.tags.append(sticky_tag)
+            elif not sticky and sticky_tag in db_obj.tags:
+                db_obj.tags.remove(sticky_tag)
 
         db.add(db_obj)
         db.commit()
@@ -71,7 +94,8 @@ class CRUDImage(CRUDBase[Image, ImageCreate, ImageUpdate]):
     ) -> List[Image]:
         return (
             db.query(self.model)
-            .filter(self.model.sticky == True)
+            .join(Image.tags)
+            .filter(Tag.name == "sticky")
             .order_by(self.model.created_at.desc())
             .offset(skip)
             .limit(limit)
@@ -79,18 +103,17 @@ class CRUDImage(CRUDBase[Image, ImageCreate, ImageUpdate]):
         )
 
     def get_tag_images_by_id(
-        self, db: Session, *, tag_id, skip: int = 0, limit: int = 100
+        self, db: Session, *, tag_id: int, skip: int = 0, limit: int = 100
     ) -> List[Image]:
         return (
             db.query(self.model)
             .join(Image.tags)
-            .filter(Tag.id == int(tag_id))
+            .filter(Tag.id == tag_id)
             .order_by(self.model.created_at.desc())
             .offset(skip)
             .limit(limit)
             .all()
         )
-        # images_with_tag = session.query(Image).join(Image.tags).filter(Tag.id == tag_id).all()
 
 
 image = CRUDImage(Image)

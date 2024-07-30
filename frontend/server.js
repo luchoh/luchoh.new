@@ -27,17 +27,28 @@ app.use(express.static(path.join(__dirname, 'src')));
 app.use('/css', express.static(path.join(__dirname, 'node_modules/materialize-css/dist/css')));
 app.use('/js', express.static(path.join(__dirname, 'node_modules/materialize-css/dist/js')));
 
-async function fetchTagsAndImages(tagName = null) {
-    const tagsResponse = await fetch(`${config.apiBaseUrl}/tags/`);
-    const tags = await tagsResponse.json();
+async function fetchTagsAndImages(tagName = config.defaultTag || "sticky") {
+    try {
+        const [tagsResponse, imagesResponse] = await Promise.all([
+            fetch(`${config.apiBaseUrl}/tags/`),
+            fetch(`${config.apiBaseUrl}/images/by_tag/${tagName}`)
+        ]);
 
-    const imagesUrl = tagName
-        ? `${config.apiBaseUrl}/images/by_tag/${tagName}`
-        : `${config.apiBaseUrl}/images/`;
-    const imagesResponse = await fetch(imagesUrl);
-    const images = await imagesResponse.json();
+        if (!tagsResponse.ok || !imagesResponse.ok) {
+            throw new Error('Failed to fetch data');
+        }
 
-    return { tags, images };
+        const tags = await tagsResponse.json();
+        const images = await imagesResponse.json();
+
+        // Filter out the 'sticky' tag from the menu
+        const menuTags = tags.filter(tag => tag.name !== 'sticky');
+
+        return { tags: menuTags, images };
+    } catch (error) {
+        console.error('Error fetching tags and images:', error);
+        throw error;
+    }
 }
 
 app.get('/', async (req, res) => {
