@@ -254,6 +254,51 @@ nav ul.menu.hide-on-med-and-down li a:hover {
     color: #888;
 }
 
+/* Custom Modal Styles */
+.custom-modal {
+    background-color: #333;
+    color: #B1B1B1;
+    border-radius: 0;
+}
+
+.custom-modal .modal-content {
+    padding: 24px;
+}
+
+.custom-modal .modal-title {
+    color: #fff;
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+}
+
+.custom-modal .input-field input {
+    border-bottom: 1px solid #555;
+    color: #B1B1B1;
+}
+
+.custom-modal .input-field input:focus {
+    border-bottom: 1px solid #B1B1B1;
+    box-shadow: 0 1px 0 0 #B1B1B1;
+}
+
+.custom-modal .input-field label {
+    color: #888;
+}
+
+.custom-modal .input-field input:focus+label {
+    color: #B1B1B1;
+}
+
+.custom-modal .custom-button {
+    background-color: #444;
+    color: #B1B1B1;
+    margin-top: 20px;
+}
+
+.custom-modal .custom-button:hover {
+    background-color: #555;
+}
+
 /* Materialize overrides */
 .col {
     padding: 0 11.25px;

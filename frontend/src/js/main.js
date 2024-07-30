@@ -164,7 +164,14 @@ function updateAuthUI() {
 }
 
 function setupAuthUI() {
-    const loginModal = M.Modal.init(document.getElementById('login-modal'));
+    const loginModal = M.Modal.init(document.getElementById('login-modal'), {
+        dismissible: true,
+        opacity: 0.9,
+        inDuration: 300,
+        outDuration: 200,
+        startingTop: '4%',
+        endingTop: '10%'
+    });
 
     const loginForm = document.getElementById('login-form');
     loginForm.addEventListener('submit', async (e) => {
