@@ -32,6 +32,8 @@ class Settings(BaseSettings):
 
     UPLOAD_DIRECTORY: str = os.path.join(app_dir, "../uploads")
 
+    DEFAULT_TAG: str = "sticky"
+
     model_config = SettingsConfigDict(env_file=env_file_path, case_sensitive=True)
 
     @property

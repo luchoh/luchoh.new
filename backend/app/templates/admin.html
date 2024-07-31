@@ -69,7 +69,7 @@
                             </div>
                             <div>
                                 <label for="image-sticky">
-                                    <input type="checkbox" id="image-sticky" name="sticky">
+                                    <input type="checkbox" id="image-sticky" name=DEFAULT_TAG>
                                     Sticky
                                 </label>
                             </div>
@@ -125,7 +125,7 @@
                         </div>
                         <div>
                             <label for="edit-image-sticky">
-                                <input type="checkbox" id="edit-image-sticky" name="sticky">
+                                <input type="checkbox" id="edit-image-sticky" name=DEFAULT_TAG>
                                 Sticky
                             </label>
                         </div>
@@ -156,6 +156,11 @@
         </main>
     </div>
 
+    <script>
+        window.appConfig = {
+            DEFAULT_TAG: "{{ settings.DEFAULT_TAG }}"
+        };
+    </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
     <script src="{{ url_for('static', path='/js/admin.js') }}" type="module"></script>
     <script src="{{ url_for('static', path='/js/global.js') }}" type="module"></script>

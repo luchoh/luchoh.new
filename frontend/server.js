@@ -42,7 +42,7 @@ async function fetchTagsAndImages(tagName = config.defaultTag || "sticky") {
         const images = await imagesResponse.json();
 
         // Filter out the 'sticky' tag from the menu
-        const menuTags = tags.filter(tag => tag.name !== 'sticky');
+        const menuTags = tags.filter(tag => tag.name !== config.defaultTag);
 
         return { tags: menuTags, images };
     } catch (error) {

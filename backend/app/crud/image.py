@@ -7,6 +7,7 @@ from app.models.image import Image, Tag
 from app.schemas.image import ImageCreate, ImageUpdate
 from .base import CRUDBase
 from app.utils.slugify import generate_slug
+from app.core.config import settings
 
 
 class CRUDImage(CRUDBase[Image, ImageCreate, ImageUpdate]):
@@ -31,9 +32,9 @@ class CRUDImage(CRUDBase[Image, ImageCreate, ImageUpdate]):
 
         # Handle sticky flag
         if obj_in.sticky:
-            sticky_tag = db.query(Tag).filter(Tag.name == "sticky").first()
+            sticky_tag = db.query(Tag).filter(Tag.name == settings.DEFAULT_TAG).first()
             if not sticky_tag:
-                sticky_tag = Tag(name="sticky")
+                sticky_tag = Tag(name=settings.DEFAULT_TAG)
                 db.add(sticky_tag)
             db_obj.tags.append(sticky_tag)
 
@@ -48,7 +49,7 @@ class CRUDImage(CRUDBase[Image, ImageCreate, ImageUpdate]):
         tags = update_data.pop("tags", None)
 
         # Handle sticky separately
-        sticky = update_data.pop("sticky", None)
+        sticky = update_data.pop(settings.DEFAULT_TAG, None)
 
         # Update slug if title is changed
         if "title" in update_data:
@@ -65,9 +66,9 @@ class CRUDImage(CRUDBase[Image, ImageCreate, ImageUpdate]):
                     db_obj.tags.append(tag)
 
         if sticky is not None:
-            sticky_tag = db.query(Tag).filter(Tag.name == "sticky").first()
+            sticky_tag = db.query(Tag).filter(Tag.name == settings.DEFAULT_TAG).first()
             if not sticky_tag:
-                sticky_tag = Tag(name="sticky")
+                sticky_tag = Tag(name=settings.DEFAULT_TAG)
                 db.add(sticky_tag)
 
             if sticky and sticky_tag not in db_obj.tags:
@@ -95,7 +96,7 @@ class CRUDImage(CRUDBase[Image, ImageCreate, ImageUpdate]):
         return (
             db.query(self.model)
             .join(Image.tags)
-            .filter(Tag.name == "sticky")
+            .filter(Tag.name == settings.DEFAULT_TAG)
             .order_by(self.model.created_at.desc())
             .offset(skip)
             .limit(limit)

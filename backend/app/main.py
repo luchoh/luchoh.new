@@ -5,6 +5,7 @@ import logging
 from fastapi import FastAPI, Request, Form
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import JSONResponse
 from app.api.api import api_router
 from app.core.config import settings
 from app.db.session import get_db
@@ -53,6 +54,11 @@ async def root():
     return {"message": "Welcome to LuchoH Photography API"}
 
 
+@app.get("/api/config")
+async def get_config():
+    return JSONResponse({"DEFAULT_TAG": settings.DEFAULT_TAG})
+
+
 @app.get("/admin")
 async def admin(request: Request):
-    return templates.TemplateResponse("admin.html", {"request": request})
+    return templates.TemplateResponse("admin.html", {"request": request, "settings": settings})

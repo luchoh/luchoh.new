@@ -206,8 +206,8 @@ async def create_thumbnail(
 
 @router.get("/by_tag/{tag_name}", response_model=List[schemas.Image])
 def read_images_by_tag(
-    tag_name: str,
     request: Request,
+    tag_name: str = settings.DEFAULT_TAG,
     db: Session = Depends(deps.get_db),
     skip: int = 0,
     limit: int = 100,

@@ -10,10 +10,12 @@ let cropper;
 
 let stickyTagId = null;
 
+const DEFAULT_TAG = window.appConfig.DEFAULT_TAG || 'sticky';
+
 async function initializeTags() {
     try {
         const tags = await tag.loadTags();
-        const stickyTag = tags.find(t => t.name === 'sticky');
+        const stickyTag = tags.find(t => t.name === DEFAULT_TAG);
         if (stickyTag) {
             stickyTagId = stickyTag.id;
         }
@@ -303,7 +305,7 @@ export function showEditImageSection(id, title, description, imageSrc, slug, tag
     tag.loadTags().then((allTags) => {
         console.log('All tags:', allTags);
         allTags.forEach(tagOption => {
-            if (tagOption.name !== 'sticky') {
+            if (tagOption.name !== DEFAULT_TAG) {
                 const option = document.createElement('option');
                 option.value = tagOption.id;
                 option.textContent = tagOption.name;

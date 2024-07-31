@@ -4,6 +4,8 @@
 import { getToken } from './auth.js';
 import { handleError } from './utils.js';
 
+const DEFAULT_TAG = window.appConfig.DEFAULT_TAG || 'sticky';
+
 export async function uploadImage(file, title, description) {
     const token = getToken();
 
@@ -119,8 +121,8 @@ export async function loadImages() {
         imagesList.innerHTML = '';
 
         images.forEach(img => {
-            const isSticky = img.tags.some(tag => tag.name === 'sticky');
-            const displayTags = img.tags.filter(tag => tag.name !== 'sticky');
+            const isSticky = img.tags.some(tag => tag.name === DEFAULT_TAG);
+            const displayTags = img.tags.filter(tag => tag.name !== DEFAULT_TAG);
 
             const imageElement = document.createElement('div');
             imageElement.className = 'image-item';
