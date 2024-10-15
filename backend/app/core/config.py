@@ -1,10 +1,11 @@
 # Project: luchoh.com refactoring
 # File: backend/app/core/config.py
 
-import os
-from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing import List
 import json
+import os
+from typing import List
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # Get the directory of the current file
 current_dir = os.path.dirname(os.path.abspath(__file__))

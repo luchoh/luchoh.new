@@ -1,23 +1,23 @@
 # Project: luchoh.com refactoring
 # File: backend/app/api/endpoints/images.py
-import os
 import logging
+import os
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile, File, Form
-from sqlalchemy.orm import Session
 from urllib.parse import unquote
-from app.db.session import get_db
+
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
+from PIL import Image as PILImage
+from sqlalchemy.orm import Session
+
+from app import crud, models, schemas
+from app.api import deps
 from app.auth.auth import get_current_active_user
+from app.core.config import settings
+from app.db.session import get_db
 from app.models.user import User
 from app.utils.file import generate_file_path
+from app.utils.image import generate_image_response, get_full_url
 from app.utils.slugify import generate_slug
-from app.utils.image import get_full_url, generate_image_response
-
-from app.api import deps
-from app import crud, models, schemas
-from PIL import Image as PILImage
-
-from app.core.config import settings
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

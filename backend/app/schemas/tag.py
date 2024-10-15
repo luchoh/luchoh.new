@@ -1,8 +1,9 @@
 # Project: luchoh.com refactoring
 # File: backend/app/schemas/tag.py
 
-from pydantic import BaseModel
 from typing import Optional
+
+from pydantic import BaseModel
 
 
 class TagBase(BaseModel):

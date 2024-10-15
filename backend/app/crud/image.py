@@ -2,12 +2,15 @@
 # File: backend/app/crud/image.py
 
 from typing import List, Optional
+
 from sqlalchemy.orm import Session
+
+from app.core.config import settings
 from app.models.image import Image, Tag
 from app.schemas.image import ImageCreate, ImageUpdate
-from .base import CRUDBase
 from app.utils.slugify import generate_slug
-from app.core.config import settings
+
+from .base import CRUDBase
 
 
 class CRUDImage(CRUDBase[Image, ImageCreate, ImageUpdate]):

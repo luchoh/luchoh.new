@@ -2,9 +2,12 @@
 # File: backend/app/crud/tag.py
 
 from typing import List
+
 from sqlalchemy.orm import Session
+
 from app.models.image import Tag
 from app.schemas.tag import TagCreate, TagUpdate
+
 from .base import CRUDBase
 
 

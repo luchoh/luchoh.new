@@ -1,28 +1,27 @@
 # Project: luchoh.com refactoring
 # File: backend/app/api/endpoints/auth.py
 from datetime import timedelta
-from fastapi import APIRouter, Depends, HTTPException, status
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException, Body
+from fastapi import APIRouter, Body, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from app.core.security import create_access_token
-from app.db.session import get_db
-from app.crud.user import user as user_crud
 
 from app import crud, models, schemas
 from app.api import deps
-from app.schemas.user import UserCreate, User as UserSchema
-from app.schemas.token import Token as TokenSchema
 from app.core import security
 from app.core.config import settings
+from app.core.security import create_access_token
+from app.crud.user import user as user_crud
+from app.db.session import get_db
+from app.schemas.token import Token as TokenSchema
+from app.schemas.user import User as UserSchema
+from app.schemas.user import UserCreate
 from app.utils.auth import (
     generate_password_reset_token,
     send_reset_password_email,
     verify_password_reset_token,
 )
-
 
 router = APIRouter()
 

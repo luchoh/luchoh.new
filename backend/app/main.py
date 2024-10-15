@@ -1,16 +1,23 @@
 # Project: luchoh.com refactoring
 # File: backend/app/main.py
-import os
+"""
+Main application module for the luchoh.com backend.
+
+This module initializes the FastAPI application, sets up routes,
+and configures CORS and static file serving.
+"""
+
 import logging
-from fastapi import FastAPI, Request, Form
-from fastapi.templating import Jinja2Templates
-from fastapi.staticfiles import StaticFiles
+import os
+
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+
 from app.api.api import api_router
 from app.core.config import settings
-from app.db.session import get_db
-from app import crud, schemas
-from typing import List
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -23,8 +30,6 @@ print("BACKEND_CORS_ORIGINS:", settings.BACKEND_CORS_ORIGINS_LIST)
 
 # Set all CORS enabled origins
 if settings.BACKEND_CORS_ORIGINS_LIST:
-    from fastapi.middleware.cors import CORSMiddleware
-
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.BACKEND_CORS_ORIGINS_LIST,
@@ -51,14 +56,37 @@ app.mount("/uploads", StaticFiles(directory=uploads_dir), name="uploads")
 
 @app.get("/")
 async def root():
+    """
+    Root endpoint that returns a welcome message.
+
+    Returns:
+        dict: A dictionary containing a welcome message.
+    """
     return {"message": "Welcome to LuchoH Photography API"}
 
 
 @app.get("/api/config")
 async def get_config():
+    """
+    Endpoint to retrieve the default tag configuration.
+
+    Returns:
+        JSONResponse: A JSON response containing the DEFAULT_TAG configuration.
+    """
     return JSONResponse({"DEFAULT_TAG": settings.DEFAULT_TAG})
 
 
 @app.get("/admin")
 async def admin(request: Request):
-    return templates.TemplateResponse("admin.html", {"request": request, "settings": settings})
+    """
+    Admin page endpoint.
+
+    Args:
+        request (Request): The incoming request object.
+
+    Returns:
+        TemplateResponse: Renders the admin.html template with request and settings context.
+    """
+    return templates.TemplateResponse(
+        "admin.html", {"request": request, "settings": settings}
+    )

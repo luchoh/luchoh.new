@@ -1,9 +1,10 @@
 # Project: luchoh.com refactoring
 # File: backend/app/crud/user.py
 from sqlalchemy.orm import Session
+
+from app.auth.security import get_password_hash, verify_password
 from app.models.user import User
 from app.schemas.user import UserCreate
-from app.auth.security import get_password_hash, verify_password
 
 
 class CRUDUser:

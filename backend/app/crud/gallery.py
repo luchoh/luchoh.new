@@ -1,10 +1,13 @@
 # Project: luchoh.com refactoring
 # File: backend/app/crud/gallery.py
 from typing import List
+
 from sqlalchemy.orm import Session
+
 from app.models.gallery import Gallery
-from app.schemas.gallery import GalleryCreate, GalleryUpdate
 from app.models.image import Image
+from app.schemas.gallery import GalleryCreate, GalleryUpdate
+
 from .base import CRUDBase
 
 

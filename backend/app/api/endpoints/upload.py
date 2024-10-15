@@ -1,16 +1,18 @@
 # Project: luchoh.com refactoring
 # File: backend/app/api/endpoints/upload.py
 
-from fastapi import APIRouter, UploadFile, File, Depends, HTTPException
-from sqlalchemy.orm import Session
-from app.api import deps
-from app.models.user import User
-from app import crud
-from app.core.config import settings
-from app.utils.file import generate_file_path
 import os
-import uuid
 import shutil
+import uuid
+
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+from sqlalchemy.orm import Session
+
+from app import crud
+from app.api import deps
+from app.core.config import settings
+from app.models.user import User
+from app.utils.file import generate_file_path
 
 router = APIRouter()
 

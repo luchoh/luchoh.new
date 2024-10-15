@@ -1,6 +1,7 @@
 # Project: luchoh.com refactoring
 # File: backend/app/utils/slugify.py
 import re
+
 from unidecode import unidecode
 
 

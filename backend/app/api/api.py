@@ -1,7 +1,8 @@
 # Project: luchoh.com refactoring
 # File: backend/app/api/api.py
 from fastapi import APIRouter
-from app.api.endpoints import images, tags, auth, upload
+
+from app.api.endpoints import auth, images, tags, upload
 
 api_router = APIRouter()
 api_router.include_router(images.router, prefix="/images", tags=["images"])

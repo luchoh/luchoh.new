@@ -1,8 +1,9 @@
 # Project: luchoh.com refactoring
 # File: backend/app/schemas/token.py
-from typing import Optional, Union
-from pydantic import BaseModel
 from datetime import datetime
+from typing import Optional, Union
+
+from pydantic import BaseModel
 
 
 class Token(BaseModel):

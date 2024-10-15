@@ -1,12 +1,13 @@
 # Project: luchoh.com refactoring
 # File: backend/app/api/endpoints/tags.py
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException, Request, Body
+
+from fastapi import APIRouter, Body, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
+
 from app import crud, models, schemas
 from app.api import deps
-
-from app.utils.image import get_full_url, generate_image_response
+from app.utils.image import generate_image_response, get_full_url
 
 router = APIRouter()
 
@@ -79,7 +80,9 @@ def delete_tag(
 
 
 @router.get("/{tag_id}/images")
-async def get_images_by_tag(*, request: Request, db: Session = Depends(deps.get_db), tag_id: int):
+async def get_images_by_tag(
+    *, request: Request, db: Session = Depends(deps.get_db), tag_id: int
+):
     tag = crud.tag.get(db, id=tag_id)
     # tag = await Tag.get(name=tag_id)
     if not tag:

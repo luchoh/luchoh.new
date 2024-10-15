@@ -2,7 +2,6 @@
 # File: backend/app/api/deps.py
 
 from datetime import datetime, timezone
-
 from typing import Generator, Optional
 
 from fastapi import Depends, HTTPException, status
@@ -51,7 +50,9 @@ def get_current_user(
         )
     user = crud.user.get(db, user_id=token_data.sub)  # Changed 'id' to 'user_id'
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
     return user
 
 

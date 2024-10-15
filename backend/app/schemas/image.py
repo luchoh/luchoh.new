@@ -2,7 +2,9 @@
 # File: backend/app/schemas/image.py
 
 from typing import List, Optional
+
 from pydantic import BaseModel, Field
+
 from .tag import Tag as TagSchema
 
 

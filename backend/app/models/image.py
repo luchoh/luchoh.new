@@ -14,6 +14,7 @@ image_tag = Table(
 )
 
 
+# pylint: disable=too-few-public-methods
 class Image(Base):
     __tablename__ = "images"
 
@@ -22,12 +23,15 @@ class Image(Base):
     description = Column(String(500))
     file_path = Column(String(255))
     thumbnail_url = Column(String(255), nullable=True)
+    # pylint: disable=not-callable
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    # pylint: enable=not-callable
 
     tags = relationship("Tag", secondary=image_tag, back_populates="images")
 
 
+# pylint: disable=too-few-public-methods
 class Tag(Base):
     __tablename__ = "tags"
 
