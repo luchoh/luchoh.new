@@ -1,0 +1,5 @@
+alembic
+uploads
+.devenv
+.direnv
+.venv
