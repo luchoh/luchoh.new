@@ -1,14 +1,13 @@
 # Project: luchoh.com refactoring
 # File: backend/commands.py
+from app.schemas.user import UserCreate
+from app.crud.user import user
+from app.db.session import SessionLocal
 import sys
 import os
 
 # Add the parent directory to sys.path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from app.db.session import SessionLocal
-from app.crud.user import user
-from app.schemas.user import UserCreate
 
 
 def create_superuser(username: str, email: str, password: str):

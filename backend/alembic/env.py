@@ -1,5 +1,8 @@
 # Project: luchoh.com refactoring
 # File: backend/alembic/env.py
+from app.models.image import Image
+from app.models.user import User
+from app.db.base_class import Base
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config
@@ -12,11 +15,8 @@ import os
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from app.db.base_class import Base
-from app.models.user import User
 # from app.models.gallery import Gallery
 # from app.models.tag
-from app.models.image import Image
 # from app.db.session import engine
 
 # this is the Alembic Config object, which provides

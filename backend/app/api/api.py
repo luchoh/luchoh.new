@@ -1,5 +1,8 @@
 # Project: luchoh.com refactoring
 # File: backend/app/api/api.py
+
+"""API router configuration for the LuchoH Photography application."""
+
 from fastapi import APIRouter
 from app.api.endpoints import images, tags, auth, upload
 

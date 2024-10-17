@@ -1,16 +1,18 @@
 # Project: luchoh.com refactoring
 # File: backend/app/api/endpoints/upload.py
 
+"""Endpoints for handling file uploads in the LuchoH Photography API."""
+
+import os
+import shutil
+
 from fastapi import APIRouter, UploadFile, File, Depends, HTTPException
-from sqlalchemy.orm import Session
+
 from app.api import deps
 from app.models.user import User
 from app import crud
 from app.core.config import settings
 from app.utils.file import generate_file_path
-import os
-import uuid
-import shutil
 
 router = APIRouter()
 
@@ -22,15 +24,21 @@ ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif"}
 
 
 def is_file_extension_allowed(filename):
+    """Check if the file extension is allowed."""
     return os.path.splitext(filename)[1].lower() in ALLOWED_EXTENSIONS
 
 
 @router.post("/uploadfile/")
 async def create_upload_file(
     file: UploadFile = File(...),
-    db: Session = Depends(deps.get_db),
     current_user: User = Depends(deps.get_current_active_user),
 ):
+    """
+    Upload a file to the server.
+
+    This endpoint allows authenticated users to upload files to the server.
+    It checks for proper permissions and file type before saving the file.
+    """
     if not crud.user.is_superuser(current_user):
         raise HTTPException(status_code=403, detail="Not enough permissions")
 
@@ -46,7 +54,7 @@ async def create_upload_file(
         with open(file_location, "wb+") as file_object:
             shutil.copyfileobj(file.file, file_object)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Could not upload file: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Could not upload file: {str(e)}") from e
 
     file_size = os.path.getsize(file_location)
 

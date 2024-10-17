@@ -1,5 +1,8 @@
 # Project: luchoh.com refactoring
 # File: backend/app/utils/slugify.py
+
+"""Utility function for generating URL-friendly slugs."""
+
 import re
 from unidecode import unidecode
 
@@ -7,6 +10,12 @@ from unidecode import unidecode
 def generate_slug(title: str) -> str:
     """
     Generate a URL-friendly slug from a title.
+
+    Args:
+        title (str): The original title to be converted into a slug.
+
+    Returns:
+        str: A URL-friendly slug.
     """
     # Convert to ASCII
     slug = unidecode(title)

@@ -1,12 +1,15 @@
 # Project: luchoh.com refactoring
 # File: backend/app/api/endpoints/tags.py
+
+"""Endpoints for managing tags in the LuchoH Photography API."""
+
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException, Request, Body
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from app import crud, models, schemas
 from app.api import deps
 
-from app.utils.image import get_full_url, generate_image_response
+from app.utils.image import generate_image_response
 
 router = APIRouter()
 
@@ -17,6 +20,9 @@ def read_tags(
     skip: int = 0,
     limit: int = 100,
 ):
+    """
+    Retrieve a list of all tags.
+    """
     tags = crud.tag.get_multi(db, skip=skip, limit=limit)
     return tags
 
@@ -26,7 +32,10 @@ def read_tag(
     tag_id: int,
     db: Session = Depends(deps.get_db),
 ):
-    tag = crud.tag.get(db, id=tag_id)
+    """
+    Retrieve a single tag by ID.
+    """
+    tag = crud.tag.get(db, id_=tag_id)
     if not tag:
         raise HTTPException(status_code=404, detail="Tag not found")
     return tag
@@ -39,6 +48,9 @@ def create_tag(
     tag_in: schemas.TagCreate,
     current_user: models.User = Depends(deps.get_current_active_user),
 ):
+    """
+    Create a new tag.
+    """
     if not crud.user.is_superuser(current_user):
         raise HTTPException(status_code=403, detail="Not enough permissions")
     tag = crud.tag.create(db=db, obj_in=tag_in)
@@ -53,7 +65,10 @@ def update_tag(
     tag_in: schemas.TagUpdate,
     current_user: models.User = Depends(deps.get_current_active_user),
 ):
-    tag = crud.tag.get(db, id=tag_id)
+    """
+    Update an existing tag.
+    """
+    tag = crud.tag.get(db, id_=tag_id)
     if not tag:
         raise HTTPException(status_code=404, detail="Tag not found")
     if not crud.user.is_superuser(current_user):
@@ -69,22 +84,28 @@ def delete_tag(
     tag_id: int,
     current_user: models.User = Depends(deps.get_current_active_user),
 ):
-    tag = crud.tag.get(db, id=tag_id)
+    """
+    Delete an existing tag.
+    """
+    tag = crud.tag.get(db, id_=tag_id)
     if not tag:
         raise HTTPException(status_code=404, detail="Tag not found")
     if not crud.user.is_superuser(current_user):
         raise HTTPException(status_code=403, detail="Not enough permissions")
-    tag = crud.tag.remove(db=db, id=tag_id)
+    tag = crud.tag.remove(db=db, id_=tag_id)
     return tag
 
 
 @router.get("/{tag_id}/images")
-async def get_images_by_tag(*, request: Request, db: Session = Depends(deps.get_db), tag_id: int):
-    tag = crud.tag.get(db, id=tag_id)
-    # tag = await Tag.get(name=tag_id)
+async def get_images_by_tag(
+    *, request: Request, db: Session = Depends(deps.get_db), tag_id: int
+):
+    """
+    Retrieve all images associated with a specific tag.
+    """
+    tag = crud.tag.get(db, id_=tag_id)
     if not tag:
         raise HTTPException(status_code=404, detail="Tag not found")
 
     images = crud.image.get_tag_images_by_id(db, tag_id=tag_id)
     return [generate_image_response(image, request) for image in images]
-    # return images

@@ -1,32 +1,31 @@
 # Project: luchoh.com refactoring
 # File: backend/app/api/endpoints/images.py
+
+"""Endpoints for managing images in the LuchoH Photography API."""
+
 import os
 import logging
 from typing import List
+from urllib.parse import unquote
+
 from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile, File, Form
 from sqlalchemy.orm import Session
-from urllib.parse import unquote
-from app.db.session import get_db
-from app.auth.auth import get_current_active_user
-from app.models.user import User
-from app.utils.file import generate_file_path
-from app.utils.slugify import generate_slug
-from app.utils.image import get_full_url, generate_image_response
-
-from app.api import deps
-from app import crud, models, schemas
 from PIL import Image as PILImage
 
-from app.core.config import settings
+from app.db.session import get_db
+from app.utils.file import generate_file_path
+from app.utils.slugify import generate_slug
+from app.utils.image import generate_image_response
+from app.api import deps
+from app import crud, models, schemas
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-logger.info("Images module loaded")
-
 router = APIRouter()
 
 
+# pylint: disable=too-many-arguments,too-many-locals
 @router.post("/", response_model=schemas.Image)
 async def create_image(
     request: Request,
@@ -38,6 +37,9 @@ async def create_image(
     db: Session = Depends(deps.get_db),
     current_user: models.User = Depends(deps.get_current_active_user),
 ):
+    """
+    Create a new image entry.
+    """
     logger.info("Create image endpoint called")
 
     if not crud.user.is_superuser(current_user):
@@ -63,8 +65,8 @@ async def create_image(
         image = crud.image.create(db=db, obj_in=image_in)
         return generate_image_response(image, request)
     except Exception as e:
-        logger.error(f"Error creating image: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+        logger.error("Error creating image: %s", str(e))
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}") from e
 
 
 @router.get("/{image_id_slug}", response_model=schemas.Image)
@@ -73,12 +75,15 @@ def read_image(
     request: Request,
     db: Session = Depends(get_db),
 ):
+    """
+    Retrieve a single image by ID and slug.
+    """
     try:
         image_id = int(image_id_slug.split("-")[0])
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid image ID")
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail="Invalid image ID") from exc
 
-    image = crud.image.get(db=db, id=image_id)
+    image = crud.image.get(db=db, id_=image_id)
     if image is None:
         raise HTTPException(status_code=404, detail="Image not found")
 
@@ -89,7 +94,7 @@ def read_image(
         raise HTTPException(status_code=404, detail="Image not found")
 
     response_data = generate_image_response(image, request)
-    logger.info(f"Image response data: {response_data}")
+    logger.info("Image response data: %s", response_data)
     return response_data
 
 
@@ -100,6 +105,9 @@ def read_images(
     skip: int = 0,
     limit: int = 100,
 ):
+    """
+    Retrieve a list of images.
+    """
     images = crud.image.get_multi(db, skip=skip, limit=limit)
     return [generate_image_response(image, request) for image in images]
 
@@ -113,7 +121,10 @@ def update_image(
     current_user: models.User = Depends(deps.get_current_active_user),
     request: Request,
 ):
-    image = crud.image.get(db=db, id=image_id)
+    """
+    Update an existing image.
+    """
+    image = crud.image.get(db=db, id_=image_id)
     if not image:
         raise HTTPException(status_code=404, detail="Image not found")
     if not crud.user.is_superuser(current_user):
@@ -143,12 +154,15 @@ def delete_image(
     current_user: models.User = Depends(deps.get_current_active_user),
     request: Request,
 ):
-    image = crud.image.get(db=db, id=image_id)
+    """
+    Delete an existing image.
+    """
+    image = crud.image.get(db=db, id_=image_id)
     if not image:
         raise HTTPException(status_code=404, detail="Image not found")
     if not crud.user.is_superuser(current_user):
         raise HTTPException(status_code=403, detail="Not enough permissions")
-    image = crud.image.remove(db=db, id=image_id)
+    image = crud.image.remove(db=db, id_=image_id)
     return generate_image_response(image, request)
 
 
@@ -157,9 +171,11 @@ async def create_thumbnail(
     image_id: int,
     crop_data: schemas.CropData,
     db: Session = Depends(deps.get_db),
-    current_user: models.User = Depends(deps.get_current_active_user),
 ):
-    image = crud.image.get(db=db, id=image_id)
+    """
+    Create a thumbnail for an existing image.
+    """
+    image = crud.image.get(db=db, id_=image_id)
     if not image:
         raise HTTPException(status_code=404, detail="Image not found")
 
@@ -181,40 +197,20 @@ async def create_thumbnail(
                 int(crop_data.x),
                 int(crop_data.y),
                 int(crop_data.x + crop_data.width),
-                int(crop_data.y + crop_data.height),
+                int(crop_data.y + crop_data.height)
             )
         )
 
-        # Resize to a square thumbnail
-        thumbnail_size = (200, 200)  # You can adjust this size
-        cropped_img.thumbnail(thumbnail_size)
-
-        # Save the thumbnail
-        relative_thumbnail_path, full_thumbnail_path = generate_file_path(
+        # Generate a new file path for the thumbnail
+        thumbnail_relative_path, thumbnail_full_path = generate_file_path(
             os.path.basename(image.file_path), prefix="thumbnail_"
         )
-        cropped_img.save(full_thumbnail_path)
 
-        # Update the image record
-        image.thumbnail_url = relative_thumbnail_path
-        db.add(image)
-        db.commit()
-        db.refresh(image)
+        # Save the cropped image as the thumbnail
+        cropped_img.save(thumbnail_full_path)
 
-    return image
+    # Update the image with the new thumbnail path
+    image_in = schemas.ImageUpdate(thumbnail_url=thumbnail_relative_path)
+    updated_image = crud.image.update(db=db, db_obj=image, obj_in=image_in)
 
-
-@router.get("/by_tag/{tag_name}", response_model=List[schemas.Image])
-def read_images_by_tag(
-    request: Request,
-    tag_name: str = settings.DEFAULT_TAG,
-    db: Session = Depends(deps.get_db),
-    skip: int = 0,
-    limit: int = 100,
-):
-    tag = crud.tag.get_by_name(db, name=tag_name)
-    if not tag:
-        raise HTTPException(status_code=404, detail="Tag not found")
-
-    images = crud.image.get_tag_images_by_id(db, tag_id=tag.id, skip=skip, limit=limit)
-    return [generate_image_response(image, request) for image in images]
+    return updated_image

@@ -1,20 +1,17 @@
 # Project: luchoh.com refactoring
 # File: backend/app/api/endpoints/auth.py
+
+"""Authentication endpoints for the LuchoH Photography API."""
+
 from datetime import timedelta
-from fastapi import APIRouter, Depends, HTTPException, status
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException, Body
+from fastapi import APIRouter, Depends, HTTPException, status, Body
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from app.core.security import create_access_token
-from app.db.session import get_db
-from app.crud.user import user as user_crud
 
 from app import crud, models, schemas
 from app.api import deps
-from app.schemas.user import UserCreate, User as UserSchema
-from app.schemas.token import Token as TokenSchema
 from app.core import security
 from app.core.config import settings
 from app.utils.auth import (
@@ -22,7 +19,6 @@ from app.utils.auth import (
     send_reset_password_email,
     verify_password_reset_token,
 )
-
 
 router = APIRouter()
 
@@ -35,15 +31,15 @@ def login_access_token(
     OAuth2 compatible token login, get an access token for future requests
     """
     user = crud.user.authenticate(
-        db, email=form_data.username, password=form_data.password
+        db, username_or_email=form_data.username, password=form_data.password
     )
     if not user:
         raise HTTPException(status_code=400, detail="Incorrect email or password")
-    elif not crud.user.is_active(user):
+    if not crud.user.is_active(user):
         raise HTTPException(status_code=400, detail="Inactive user")
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     return {
-        "access_token": create_access_token(
+        "access_token": security.create_access_token(
             user.id, expires_delta=access_token_expires
         ),
         "token_type": "bearer",
@@ -51,7 +47,7 @@ def login_access_token(
 
 
 @router.post("/login/test-token", response_model=schemas.User)
-def test_token(current_user: models.User = Depends(deps.get_current_user)):
+def test_token(current_user: models.User = Depends(deps.get_current_user)) -> Any:
     """
     Test access token
     """
@@ -72,9 +68,10 @@ def recover_password(email: str, db: Session = Depends(deps.get_db)) -> Any:
         )
     password_reset_token = generate_password_reset_token(email=email)
     send_reset_password_email(
-        email_to=user.email, email=email, token=password_reset_token
+        email=email, token=password_reset_token
     )
     return {"msg": "Password recovery email sent"}
+
 
 
 @router.post("/reset-password/", response_model=schemas.Msg)
@@ -95,7 +92,7 @@ def reset_password(
             status_code=404,
             detail="The user with this email does not exist in the system.",
         )
-    elif not crud.user.is_active(user):
+    if not crud.user.is_active(user):
         raise HTTPException(status_code=400, detail="Inactive user")
     hashed_password = security.get_password_hash(new_password)
     user.hashed_password = hashed_password
@@ -104,11 +101,14 @@ def reset_password(
     return {"msg": "Password updated successfully"}
 
 
-@router.post("/token", response_model=TokenSchema)
+@router.post("/token", response_model=schemas.Token)
 async def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(deps.get_db)
 ):
-    db_user = user_crud.authenticate(
+    """
+    Get an access token for authentication
+    """
+    db_user = crud.user.authenticate(
         db, username_or_email=form_data.username, password=form_data.password
     )
     if not db_user:
@@ -118,11 +118,8 @@ async def login_for_access_token(
             headers={"WWW-Authenticate": "Bearer"},
         )
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        subject=db_user.id,  # Changed from data to subject
+    access_token = security.create_access_token(
+        subject=db_user.id,
         expires_delta=access_token_expires,
     )
-
-    return {"access_token": access_token, "token_type": "bearer"}
-
     return {"access_token": access_token, "token_type": "bearer"}

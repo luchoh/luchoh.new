@@ -1,5 +1,10 @@
 # Project: luchoh.com refactoring
 # File: backend/app/models/image.py
+# pylint: disable=too-few-public-methods
+# pylint: disable=not-callable
+
+
+"""SQLAlchemy models for Image and Tag."""
 
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Table
 from sqlalchemy.orm import relationship
@@ -15,6 +20,19 @@ image_tag = Table(
 
 
 class Image(Base):
+    """
+    SQLAlchemy model for the Image table.
+
+    Attributes:
+        id (int): Primary key for the image.
+        title (str): Title of the image.
+        description (str): Description of the image.
+        file_path (str): Path to the image file.
+        thumbnail_url (str): URL of the image thumbnail.
+        created_at (datetime): Timestamp of when the image was created.
+        updated_at (datetime): Timestamp of when the image was last updated.
+        tags (relationship): Many-to-many relationship with Tag model.
+    """
     __tablename__ = "images"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -29,6 +47,16 @@ class Image(Base):
 
 
 class Tag(Base):
+    """
+    SQLAlchemy model for the Tag table.
+
+    Attributes:
+        id (int): Primary key for the tag.
+        name (str): Name of the tag.
+        description (str): Description of the tag.
+        order (int): Order of the tag for sorting purposes.
+        images (relationship): Many-to-many relationship with Image model.
+    """
     __tablename__ = "tags"
 
     id = Column(Integer, primary_key=True, index=True)

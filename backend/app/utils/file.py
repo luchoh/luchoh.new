@@ -1,5 +1,8 @@
 # Project: luchoh.com refactoring
 # File: backend/app/utils/file.py
+
+"""Utility functions for file handling in the LuchoH Photography API."""
+
 import os
 import uuid
 from app.core.config import settings

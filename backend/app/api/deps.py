@@ -1,9 +1,10 @@
 # Project: luchoh.com refactoring
 # File: backend/app/api/deps.py
 
-from datetime import datetime, timezone
+"""Dependency functions for FastAPI endpoints."""
 
-from typing import Generator, Optional
+from datetime import datetime, timezone
+from typing import Generator
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
@@ -22,6 +23,10 @@ reusable_oauth2 = OAuth2PasswordBearer(
 
 
 def get_db() -> Generator:
+    """
+    Dependency function to get a database session.
+    Yields a SQLAlchemy session and ensures it's closed after use.
+    """
     try:
         db = SessionLocal()
         yield db
@@ -32,6 +37,10 @@ def get_db() -> Generator:
 def get_current_user(
     db: Session = Depends(get_db), token: str = Depends(reusable_oauth2)
 ) -> models.User:
+    """
+    Dependency function to get the current authenticated user.
+    Validates the JWT token and returns the corresponding user.
+    """
     try:
         payload = jwt.decode(
             token, settings.SECRET_KEY, algorithms=[security.ALGORITHM]
@@ -43,21 +52,27 @@ def get_current_user(
                 detail="Token has expired",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-    except (jwt.JWTError, ValidationError):
+    except (jwt.JWTError, ValidationError) as exc:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials",
             headers={"WWW-Authenticate": "Bearer"},
-        )
+        ) from exc
     user = crud.user.get(db, user_id=token_data.sub)  # Changed 'id' to 'user_id'
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
     return user
 
 
 def get_current_active_user(
     current_user: models.User = Depends(get_current_user),
 ) -> models.User:
+    """
+    Dependency function to get the current active user.
+    Checks if the user is active and raises an exception if not.
+    """
     if not crud.user.is_active(current_user):
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
@@ -66,6 +81,10 @@ def get_current_active_user(
 def get_current_active_superuser(
     current_user: models.User = Depends(get_current_user),
 ) -> models.User:
+    """
+    Dependency function to get the current active superuser.
+    Checks if the user is a superuser and raises an exception if not.
+    """
     if not crud.user.is_superuser(current_user):
         raise HTTPException(
             status_code=400, detail="The user doesn't have enough privileges"
@@ -76,6 +95,10 @@ def get_current_active_superuser(
 def get_current_active_verified_user(
     current_user: models.User = Depends(get_current_active_user),
 ) -> models.User:
+    """
+    Dependency function to get the current active and verified user.
+    Checks if the user is verified and raises an exception if not.
+    """
     if not current_user.is_verified:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
