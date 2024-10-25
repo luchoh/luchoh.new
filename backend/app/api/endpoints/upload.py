@@ -49,19 +49,27 @@ async def create_upload_file(
     os.makedirs(settings.UPLOAD_DIRECTORY, exist_ok=True)
 
     relative_file_path, file_location = generate_file_path(file.filename)
+    temp_file_location = f"{file_location}.temp"
 
     try:
-        with open(file_location, "wb+") as file_object:
+        # First write to a temporary file
+        with open(temp_file_location, "wb+") as file_object:
             shutil.copyfileobj(file.file, file_object)
+        
+        # If successful, rename to final filename
+        os.rename(temp_file_location, file_location)
+        
+        file_size = os.path.getsize(file_location)
+
+        return {
+            "message": "File uploaded successfully",
+            "original_filename": file.filename,
+            "saved_filename": os.path.basename(file_location),
+            "file_path": relative_file_path,
+            "file_size": file_size,
+        }
     except Exception as e:
+        # Clean up temp file if it exists
+        if os.path.exists(temp_file_location):
+            os.remove(temp_file_location)
         raise HTTPException(status_code=500, detail=f"Could not upload file: {str(e)}") from e
-
-    file_size = os.path.getsize(file_location)
-
-    return {
-        "message": "File uploaded successfully",
-        "original_filename": file.filename,
-        "saved_filename": os.path.basename(file_location),
-        "file_path": relative_file_path,
-        "file_size": file_size,
-    }

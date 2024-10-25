@@ -30,6 +30,11 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
+    # Rate limiting settings
+    RATE_LIMIT_MAX_REQUESTS: int = 100
+    RATE_LIMIT_WINDOW_SECONDS: int = 60
+    RATE_LIMIT_MAX_TOKENS: int = 10000
+
     # Database settings
     DATABASE_URL: str = "mysql+pymysql://luchoh@localhost/luchoh_photography"
 

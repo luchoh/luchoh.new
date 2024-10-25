@@ -12,6 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from app.api.api import api_router
 from app.core.config import settings
+from app.middleware import RateLimitMiddleware
 
 logging.basicConfig(level=logging.INFO)
 
@@ -45,6 +46,13 @@ app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 uploads_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../uploads")
 app.mount("/uploads", StaticFiles(directory=uploads_dir), name="uploads")
+
+app.add_middleware(
+    RateLimitMiddleware, 
+    max_requests=settings.RATE_LIMIT_MAX_REQUESTS,
+    window_seconds=settings.RATE_LIMIT_WINDOW_SECONDS,
+    max_tokens=settings.RATE_LIMIT_MAX_TOKENS
+)
 
 
 @app.get("/")
