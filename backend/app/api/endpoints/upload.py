@@ -55,10 +55,10 @@ async def create_upload_file(
         # First write to a temporary file
         with open(temp_file_location, "wb+") as file_object:
             shutil.copyfileobj(file.file, file_object)
-        
+
         # If successful, rename to final filename
         os.rename(temp_file_location, file_location)
-        
+
         file_size = os.path.getsize(file_location)
 
         return {

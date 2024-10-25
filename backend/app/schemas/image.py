@@ -4,7 +4,9 @@
 """Pydantic models for Image-related schemas."""
 
 from typing import List, Optional
+from fastapi import UploadFile
 from pydantic import BaseModel, Field
+
 from .tag import Tag as TagSchema
 
 # pylint: disable=too-few-public-methods
@@ -19,8 +21,11 @@ class ImageBase(BaseModel):
 
 class ImageCreate(ImageBase):
     """Schema for creating a new Image."""
-    tags: List[str] = []
+    file: UploadFile
+    title: str
+    description: Optional[str] = None
     sticky: bool = False
+    tags: List[str] = []
 
 
 class ImageUpdate(BaseModel):

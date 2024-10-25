@@ -1,23 +1,72 @@
+# Project: luchoh.com refactoring
+# File: backend/middleware/rate_limit.py
+
+"""Rate limiting middleware for the FastAPI application.
+
+This module provides rate limiting functionality to protect the API
+from excessive requests using a token bucket algorithm implemented
+with TTLCache.
+"""
+
+from typing import Optional
 from fastapi import Request, HTTPException
 from starlette.middleware.base import BaseHTTPMiddleware
-from datetime import datetime, timedelta
 from cachetools import TTLCache
 
+
 class RateLimitMiddleware(BaseHTTPMiddleware):
-    def __init__(self, app, max_requests: int = 100, window_seconds: int = 60):
+    """
+    Rate limiting middleware for the FastAPI application.
+
+    This module provides rate limiting functionality to protect the API
+    from excessive requests using a token bucket algorithm implemented
+    with TTLCache.
+
+    Attributes:
+        max_requests (int): Maximum number of requests allowed per window
+        window_seconds (int): Time window in seconds for rate limiting
+        request_counts (TTLCache): Cache to store request counts per IP
+    """
+
+    def __init__(
+        self,
+        app,
+        max_requests: int = 100,
+        window_seconds: int = 60,
+        max_tokens: Optional[int] = None
+    ):
+        """Initialize the rate limit middleware.
+
+        Args:
+            app: The FastAPI application
+            max_requests: Maximum number of requests allowed per window
+            window_seconds: Time window in seconds
+            max_tokens: Maximum number of tokens to store (defaults to max_requests)
+        """
         super().__init__(app)
         self.max_requests = max_requests
         self.window_seconds = window_seconds
-        # Using TTLCache with key expiration
         self.request_counts = TTLCache(
-            maxsize=10000,  # Max number of IPs to track
-            ttl=window_seconds  # Automatic cleanup after window expires
+            maxsize=max_tokens or max_requests,
+            ttl=window_seconds
         )
 
     async def dispatch(self, request: Request, call_next):
+        """Process the request and apply rate limiting.
+
+        Args:
+            request: The incoming request
+            call_next: The next middleware or route handler
+
+        Returns:
+            The response from the next handler
+
+        Raises:
+            HTTPException: When rate limit is exceeded
+        """
         # Get client IP
         client_ip = request.client.host
-        
+
         # Skip rate limiting for static files and admin paths
         if request.url.path.startswith(("/static/", "/admin/")):
             return await call_next(request)
@@ -34,3 +83,10 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             )
 
         return await call_next(request)
+
+    def reset_counts(self) -> None:
+        """Reset all request counts in the cache.
+
+        This method can be useful for testing or manual intervention.
+        """
+        self.request_counts.clear()
