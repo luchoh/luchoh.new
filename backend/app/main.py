@@ -85,7 +85,8 @@ async def admin(request: Request):
         request (Request): The incoming request object.
 
     Returns:
-        TemplateResponse: Renders the admin.html template with request and settings context.
+        TemplateResponse:
+        Renders the admin.html template with request and settings context.
     """
     return templates.TemplateResponse(
         "admin.html", {"request": request, "settings": settings}

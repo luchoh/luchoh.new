@@ -2,7 +2,7 @@
 # File: backend/app/api/deps.py
 
 from datetime import datetime, timezone
-from typing import Generator, Optional
+from typing import Generator
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
@@ -42,12 +42,12 @@ def get_current_user(
                 detail="Token has expired",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-    except (jwt.JWTError, ValidationError):
+    except (jwt.JWTError, ValidationError) as exc:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials",
             headers={"WWW-Authenticate": "Bearer"},
-        )
+        ) from exc
     user = crud.user.get(db, user_id=token_data.sub)  # Changed 'id' to 'user_id'
     if not user:
         raise HTTPException(

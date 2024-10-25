@@ -1,12 +1,9 @@
 # Project: luchoh.com refactoring
 # File: backend/app/api/endpoints/upload.py
-
 import os
 import shutil
-import uuid
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
-from sqlalchemy.orm import Session
 
 from app import crud
 from app.api import deps
@@ -30,7 +27,6 @@ def is_file_extension_allowed(filename):
 @router.post("/uploadfile/")
 async def create_upload_file(
     file: UploadFile = File(...),
-    db: Session = Depends(deps.get_db),
     current_user: User = Depends(deps.get_current_active_user),
 ):
     if not crud.user.is_superuser(current_user):
@@ -48,7 +44,9 @@ async def create_upload_file(
         with open(file_location, "wb+") as file_object:
             shutil.copyfileobj(file.file, file_object)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Could not upload file: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Could not upload file: {str(e)}"
+        ) from e
 
     file_size = os.path.getsize(file_location)
 

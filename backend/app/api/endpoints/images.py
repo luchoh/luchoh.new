@@ -11,12 +11,11 @@ from sqlalchemy.orm import Session
 
 from app import crud, models, schemas
 from app.api import deps
-from app.auth.auth import get_current_active_user
 from app.core.config import settings
 from app.db.session import get_db
-from app.models.user import User
+from app.schemas.image import ImageCreate
 from app.utils.file import generate_file_path
-from app.utils.image import generate_image_response, get_full_url
+from app.utils.image import generate_image_response
 from app.utils.slugify import generate_slug
 
 logging.basicConfig(level=logging.INFO)
@@ -27,6 +26,7 @@ logger.info("Images module loaded")
 router = APIRouter()
 
 
+# pylint: disable=too-many-arguments, too-many-locals
 @router.post("/", response_model=schemas.Image)
 async def create_image(
     request: Request,
@@ -51,7 +51,7 @@ async def create_image(
 
     tag_list = [tag.strip() for tag in tags.split(",") if tag.strip()]
 
-    image_in = schemas.ImageCreate(
+    image_in = ImageCreate(
         title=title,
         description=description,
         file_path=relative_path,
@@ -63,8 +63,10 @@ async def create_image(
         image = crud.image.create(db=db, obj_in=image_in)
         return generate_image_response(image, request)
     except Exception as e:
-        logger.error(f"Error creating image: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+        logger.error("Error creating image: %s", str(e))
+        raise HTTPException(
+            status_code=500, detail=f"Internal server error: {str(e)}"
+        ) from e
 
 
 @router.get("/{image_id_slug}", response_model=schemas.Image)
@@ -75,8 +77,8 @@ def read_image(
 ):
     try:
         image_id = int(image_id_slug.split("-")[0])
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid image ID")
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail="Invalid image ID") from exc
 
     image = crud.image.get(db=db, id=image_id)
     if image is None:
@@ -89,7 +91,7 @@ def read_image(
         raise HTTPException(status_code=404, detail="Image not found")
 
     response_data = generate_image_response(image, request)
-    logger.info(f"Image response data: {response_data}")
+    logger.info("Image response data: %s", response_data)
     return response_data
 
 
@@ -157,7 +159,6 @@ async def create_thumbnail(
     image_id: int,
     crop_data: schemas.CropData,
     db: Session = Depends(deps.get_db),
-    current_user: models.User = Depends(deps.get_current_active_user),
 ):
     image = crud.image.get(db=db, id=image_id)
     if not image:

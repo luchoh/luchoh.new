@@ -3,3 +3,4 @@
 # from .tag import Gallery
 from .image import Image
 from .user import User
+from .gallery import Gallery

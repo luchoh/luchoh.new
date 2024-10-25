@@ -5,3 +5,4 @@ from .msg import Msg
 from .tag import Tag, TagBase, TagCreate, TagUpdate
 from .token import Token, TokenData, TokenPayload
 from .user import User, UserCreate, UserInDB, UserUpdate
+from .gallery import Gallery, GalleryCreate, GalleryUpdate

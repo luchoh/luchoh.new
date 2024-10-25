@@ -2,12 +2,12 @@
 # File: backend/app/api/endpoints/tags.py
 from typing import List
 
-from fastapi import APIRouter, Body, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 
 from app import crud, models, schemas
 from app.api import deps
-from app.utils.image import generate_image_response, get_full_url
+from app.utils.image import generate_image_response
 
 router = APIRouter()
 

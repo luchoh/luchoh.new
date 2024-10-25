@@ -13,10 +13,7 @@ from app.core import security
 from app.core.config import settings
 from app.core.security import create_access_token
 from app.crud.user import user as user_crud
-from app.db.session import get_db
 from app.schemas.token import Token as TokenSchema
-from app.schemas.user import User as UserSchema
-from app.schemas.user import UserCreate
 from app.utils.auth import (
     generate_password_reset_token,
     send_reset_password_email,
@@ -34,11 +31,11 @@ def login_access_token(
     OAuth2 compatible token login, get an access token for future requests
     """
     user = crud.user.authenticate(
-        db, email=form_data.username, password=form_data.password
+        db, username_or_email=form_data.username, password=form_data.password
     )
     if not user:
         raise HTTPException(status_code=400, detail="Incorrect email or password")
-    elif not crud.user.is_active(user):
+    if not crud.user.is_active(user):
         raise HTTPException(status_code=400, detail="Inactive user")
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     return {
@@ -94,7 +91,7 @@ def reset_password(
             status_code=404,
             detail="The user with this email does not exist in the system.",
         )
-    elif not crud.user.is_active(user):
+    if not crud.user.is_active(user):
         raise HTTPException(status_code=400, detail="Inactive user")
     hashed_password = security.get_password_hash(new_password)
     user.hashed_password = hashed_password
@@ -118,10 +115,8 @@ async def login_for_access_token(
         )
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        subject=db_user.id,  # Changed from data to subject
+        subject=db_user.id,
         expires_delta=access_token_expires,
     )
-
-    return {"access_token": access_token, "token_type": "bearer"}
 
     return {"access_token": access_token, "token_type": "bearer"}
