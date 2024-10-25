@@ -27,7 +27,7 @@ def read_tag(
     tag_id: int,
     db: Session = Depends(deps.get_db),
 ):
-    tag = crud.tag.get(db, id=tag_id)
+    tag = crud.tag.get(db, _id=tag_id)
     if not tag:
         raise HTTPException(status_code=404, detail="Tag not found")
     return tag
@@ -54,7 +54,7 @@ def update_tag(
     tag_in: schemas.TagUpdate,
     current_user: models.User = Depends(deps.get_current_active_user),
 ):
-    tag = crud.tag.get(db, id=tag_id)
+    tag = crud.tag.get(db, _id=tag_id)
     if not tag:
         raise HTTPException(status_code=404, detail="Tag not found")
     if not crud.user.is_superuser(current_user):
@@ -70,12 +70,12 @@ def delete_tag(
     tag_id: int,
     current_user: models.User = Depends(deps.get_current_active_user),
 ):
-    tag = crud.tag.get(db, id=tag_id)
+    tag = crud.tag.get(db, _id=tag_id)
     if not tag:
         raise HTTPException(status_code=404, detail="Tag not found")
     if not crud.user.is_superuser(current_user):
         raise HTTPException(status_code=403, detail="Not enough permissions")
-    tag = crud.tag.remove(db=db, id=tag_id)
+    tag = crud.tag.remove(db=db, _id=tag_id)
     return tag
 
 
@@ -83,11 +83,9 @@ def delete_tag(
 async def get_images_by_tag(
     *, request: Request, db: Session = Depends(deps.get_db), tag_id: int
 ):
-    tag = crud.tag.get(db, id=tag_id)
-    # tag = await Tag.get(name=tag_id)
+    tag = crud.tag.get(db, _id=tag_id)
     if not tag:
         raise HTTPException(status_code=404, detail="Tag not found")
 
     images = crud.image.get_tag_images_by_id(db, tag_id=tag_id)
     return [generate_image_response(image, request) for image in images]
-    # return images

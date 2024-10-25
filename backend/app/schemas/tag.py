@@ -23,5 +23,6 @@ class TagUpdate(TagBase):
 class Tag(TagBase):
     id: int
 
+    # pylint: disable=too-few-public-methods
     class Config:
         from_attributes = True

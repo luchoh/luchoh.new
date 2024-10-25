@@ -3,6 +3,7 @@
 
 from typing import List, Optional
 
+from fastapi import Form
 from pydantic import BaseModel, Field
 
 from .tag import Tag as TagSchema
@@ -33,6 +34,7 @@ class ImageInDBBase(ImageBase):
     id: int
     tags: List[TagSchema] = []
 
+    # pylint: disable=too-few-public-methods
     class Config:
         from_attributes = True
 
@@ -43,6 +45,7 @@ class Image(ImageInDBBase):
     thumbnail_url: Optional[str]
     tags: List[TagSchema] = []
 
+    # pylint: disable=too-few-public-methods
     class Config:
         orm_mode = True
 
@@ -59,3 +62,10 @@ class CropData(BaseModel):
     rotate: float
     scaleX: float
     scaleY: float
+
+
+class ImageUpload(BaseModel):
+    title: str = Form(...)
+    description: Optional[str] = Form(None)
+    sticky: bool = Form(False)
+    tags: str = Form("")

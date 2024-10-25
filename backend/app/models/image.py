@@ -1,11 +1,10 @@
 # Project: luchoh.com refactoring
 # File: backend/app/models/image.py
 
-from .gallery import gallery_image
-
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Table
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
+
 from app.db.base_class import Base
 
 image_tag = Table(
@@ -31,9 +30,9 @@ class Image(Base):
     # pylint: enable=not-callable
 
     tags = relationship("Tag", secondary=image_tag, back_populates="images")
-    galleries = relationship(
-        "Gallery", secondary=gallery_image, back_populates="images"
-    )
+
+    def __repr__(self):
+        return f"<Image(id={self.id}, title='{self.title}')>"
 
 
 # pylint: disable=too-few-public-methods
@@ -46,3 +45,6 @@ class Tag(Base):
     order = Column(Integer, default=0)
 
     images = relationship("Image", secondary=image_tag, back_populates="tags")
+
+    def __repr__(self):
+        return f"<Tag(id={self.id}, name='{self.name}')>"

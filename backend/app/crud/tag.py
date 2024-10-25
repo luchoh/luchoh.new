@@ -12,6 +12,7 @@ from .base import CRUDBase
 
 
 class CRUDTag(CRUDBase[Tag, TagCreate, TagUpdate]):
+    # pylint: disable=arguments-differ
     def create(self, db: Session, *, obj_in: TagCreate) -> Tag:
         db_obj = Tag(
             name=obj_in.name,

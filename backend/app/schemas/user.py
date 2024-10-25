@@ -30,6 +30,7 @@ class User(UserBase):
     username: str
     email: EmailStr
 
+    # pylint: disable=too-few-public-methods
     class Config:
         from_attributes = True  # This replaces orm_mode = True
 

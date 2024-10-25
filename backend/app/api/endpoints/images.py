@@ -5,7 +5,7 @@ import os
 from typing import List
 from urllib.parse import unquote
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
+from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile
 from PIL import Image as PILImage
 from sqlalchemy.orm import Session
 
@@ -13,7 +13,7 @@ from app import crud, models, schemas
 from app.api import deps
 from app.core.config import settings
 from app.db.session import get_db
-from app.schemas.image import ImageCreate
+from app.schemas.image import ImageCreate, ImageUpload
 from app.utils.file import generate_file_path
 from app.utils.image import generate_image_response
 from app.utils.slugify import generate_slug
@@ -25,21 +25,12 @@ logger.info("Images module loaded")
 
 router = APIRouter()
 
-
-# pylint: disable=too-many-arguments, too-many-locals
-@router.post("/", response_model=schemas.Image)
-async def create_image(
-    request: Request,
-    file: UploadFile = File(...),
-    title: str = Form(...),
-    description: str = Form(None),
-    sticky: bool = Form(False),
-    tags: str = Form(""),
-    db: Session = Depends(deps.get_db),
-    current_user: models.User = Depends(deps.get_current_active_user),
+async def process_image_upload(
+    file: UploadFile,
+    image_data: ImageUpload,
+    db: Session,
+    current_user: models.User
 ):
-    logger.info("Create image endpoint called")
-
     if not crud.user.is_superuser(current_user):
         raise HTTPException(status_code=403, detail="Not enough permissions")
 
@@ -49,25 +40,37 @@ async def create_image(
         content = await file.read()
         buffer.write(content)
 
-    tag_list = [tag.strip() for tag in tags.split(",") if tag.strip()]
+    tag_list = [tag.strip() for tag in image_data.tags.split(",") if tag.strip()]
 
     image_in = ImageCreate(
-        title=title,
-        description=description,
+        title=image_data.title,
+        description=image_data.description,
         file_path=relative_path,
-        sticky=sticky,
+        sticky=image_data.sticky,
         tags=tag_list,
     )
 
+    return crud.image.create(db=db, obj_in=image_in)
+
+@router.post("/", response_model=schemas.Image)
+async def create_image(
+    request: Request,
+    file: UploadFile = File(...),
+    image_data: ImageUpload = Depends(),
+    db: Session = Depends(deps.get_db),
+    current_user: models.User = Depends(deps.get_current_active_user),
+):
+    logger.info("Create image endpoint called")
+
     try:
-        image = crud.image.create(db=db, obj_in=image_in)
+        image = await process_image_upload(file, image_data, db, current_user)
         return generate_image_response(image, request)
     except Exception as e:
         logger.error("Error creating image: %s", str(e))
         raise HTTPException(
-            status_code=500, detail=f"Internal server error: {str(e)}"
+            status_code=500,
+            detail=f"Internal server error: {str(e)}"
         ) from e
-
 
 @router.get("/{image_id_slug}", response_model=schemas.Image)
 def read_image(
@@ -80,11 +83,10 @@ def read_image(
     except ValueError as exc:
         raise HTTPException(status_code=400, detail="Invalid image ID") from exc
 
-    image = crud.image.get(db=db, id=image_id)
+    image = crud.image.get(db=db, _id=image_id)
     if image is None:
         raise HTTPException(status_code=404, detail="Image not found")
 
-    # Verify that the slug matches
     expected_slug = generate_slug(image.title)
     provided_slug = "-".join(image_id_slug.split("-")[1:])
     if provided_slug != expected_slug:
@@ -93,7 +95,6 @@ def read_image(
     response_data = generate_image_response(image, request)
     logger.info("Image response data: %s", response_data)
     return response_data
-
 
 @router.get("/", response_model=List[schemas.Image])
 def read_images(
@@ -105,7 +106,6 @@ def read_images(
     images = crud.image.get_multi(db, skip=skip, limit=limit)
     return [generate_image_response(image, request) for image in images]
 
-
 @router.put("/{image_id}", response_model=schemas.Image)
 def update_image(
     *,
@@ -115,19 +115,17 @@ def update_image(
     current_user: models.User = Depends(deps.get_current_active_user),
     request: Request,
 ):
-    image = crud.image.get(db=db, id=image_id)
+    image = crud.image.get(db=db, _id=image_id)
     if not image:
         raise HTTPException(status_code=404, detail="Image not found")
     if not crud.user.is_superuser(current_user):
         raise HTTPException(status_code=403, detail="Not enough permissions")
 
-    # Decode URL-encoded data
     if image_in.title:
         image_in.title = unquote(image_in.title)
     if image_in.description:
         image_in.description = unquote(image_in.description)
 
-    # Ensure tags are a list of integers
     if image_in.tags:
         image_in.tags = [
             int(tag_id) for tag_id in image_in.tags if str(tag_id).isdigit()
@@ -135,7 +133,6 @@ def update_image(
 
     image = crud.image.update(db=db, db_obj=image, obj_in=image_in)
     return generate_image_response(image, request)
-
 
 @router.delete("/{image_id}", response_model=schemas.Image)
 def delete_image(
@@ -145,14 +142,13 @@ def delete_image(
     current_user: models.User = Depends(deps.get_current_active_user),
     request: Request,
 ):
-    image = crud.image.get(db=db, id=image_id)
+    image = crud.image.get(db=db, _id=image_id)
     if not image:
         raise HTTPException(status_code=404, detail="Image not found")
     if not crud.user.is_superuser(current_user):
         raise HTTPException(status_code=403, detail="Not enough permissions")
-    image = crud.image.remove(db=db, id=image_id)
+    image = crud.image.remove(db=db, _id=image_id)
     return generate_image_response(image, request)
-
 
 @router.post("/{image_id}/thumbnail", response_model=schemas.Image)
 async def create_thumbnail(
@@ -160,23 +156,19 @@ async def create_thumbnail(
     crop_data: schemas.CropData,
     db: Session = Depends(deps.get_db),
 ):
-    image = crud.image.get(db=db, id=image_id)
+    image = crud.image.get(db=db, _id=image_id)
     if not image:
         raise HTTPException(status_code=404, detail="Image not found")
 
-    # Open the image
     with PILImage.open(image.file_path) as img:
-        # Apply rotation if needed
         if crop_data.rotate != 0:
             img = img.rotate(-crop_data.rotate, expand=True)
 
-        # Apply scaling if needed
         if crop_data.scaleX != 1 or crop_data.scaleY != 1:
             new_width = int(img.width * crop_data.scaleX)
             new_height = int(img.height * crop_data.scaleY)
             img = img.resize((new_width, new_height))
 
-        # Crop the image
         cropped_img = img.crop(
             (
                 int(crop_data.x),
@@ -186,24 +178,20 @@ async def create_thumbnail(
             )
         )
 
-        # Resize to a square thumbnail
-        thumbnail_size = (200, 200)  # You can adjust this size
+        thumbnail_size = (200, 200)
         cropped_img.thumbnail(thumbnail_size)
 
-        # Save the thumbnail
         relative_thumbnail_path, full_thumbnail_path = generate_file_path(
             os.path.basename(image.file_path), prefix="thumbnail_"
         )
         cropped_img.save(full_thumbnail_path)
 
-        # Update the image record
         image.thumbnail_url = relative_thumbnail_path
         db.add(image)
         db.commit()
         db.refresh(image)
 
     return image
-
 
 @router.get("/by_tag/{tag_name}", response_model=List[schemas.Image])
 def read_images_by_tag(
