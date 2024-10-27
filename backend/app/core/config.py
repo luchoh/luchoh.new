@@ -45,7 +45,13 @@ class Settings(BaseSettings):
     FIRST_SUPERUSER: str = "admin@example.com"
     FIRST_SUPERUSER_PASSWORD: str = "changethis"
 
-    UPLOAD_DIRECTORY: str = os.path.join(app_dir, "../uploads")
+    # Upload directory - relative to the app directory
+    UPLOAD_DIRECTORY: str = os.path.abspath(
+        os.path.join(
+            os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+            "uploads"
+        )
+    )
 
     DEFAULT_TAG: str = "sticky"
 
