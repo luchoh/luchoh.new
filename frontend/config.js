@@ -5,6 +5,6 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 module.exports = {
-    apiBaseUrl: process.env.API_BASE_URL || 'http://localhost:8000/api/v1',
+    apiBaseUrl: process.env.API_BASE_URL || 'http://localhost:8008/api/v1',
     defaultTag: process.env.DEFAULT_TAG || 'sticky',
 };

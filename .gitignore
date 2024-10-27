@@ -18,3 +18,4 @@ _content/images/tonkatsu.jpg
 _content
 backend/uploads
 .DS_Store
+backend/postgres-data

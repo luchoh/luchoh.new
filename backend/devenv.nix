@@ -1,30 +1,13 @@
-{ pkgs, lib, config, inputs, ... }:
+{ pkgs, lib, config, inputs, ... }: {
+  packages = [
+    pkgs.git
+    pkgs.poetry
+    pkgs.pkg-config
+    pkgs.postgresql # This adds psql and other PostgreSQL client tools
+  ];
 
-{
-  # https://devenv.sh/basics/
-  env.GREET = "luchoh-backend";
-
-  # https://devenv.sh/packages/
-  packages = [ pkgs.git pkgs.poetry pkgs.pkg-config ];
-
-  # https://devenv.sh/scripts/
   scripts.hello.exec = "echo hello from $GREET";
 
-  enterShell = ''
-    hello
-    git --version
-  '';
-
-  # https://devenv.sh/tests/
-  enterTest = ''
-    echo "Running tests"
-    git --version | grep "2.42.0"
-  '';
-
-  # https://devenv.sh/services/
-  # services.postgres.enable = true;
-
-  # https://devenv.sh/languages/
   languages = {
     python = {
       enable = true;
@@ -37,28 +20,32 @@
     };
   };
 
-  # MySQL service configuration
-  services.mysql = {
-    enable = true;
-    package = pkgs.mysql;
-    initialDatabases = [{ name = "luchoh_photography"; }];
-    ensureUsers = [{
-      name = "luchoh";
-      ensurePermissions = { "luchoh_photography.*" = "ALL PRIVILEGES"; };
-    }];
-    settings = {
-      mysqld = {
-        bind-address = "127.0.0.1";
-        port = 3306;
-      };
-    };
+  processes.postgres = {
+    exec =
+      "${pkgs.postgresql}/bin/postgres -D $DEVENV_ROOT/postgres-data -k $DEVENV_ROOT/postgres-data";
   };
 
-  # Environment variables for database connection
-  env.DATABASE_URL = "mysql+pymysql://luchoh@127.0.0.1:3306/luchoh_photography";
+  env = {
+    GREET = "luchoh-backend";
+    DATABASE_URL =
+      "postgresql://luchoh:luchoh.com@127.0.0.1:5432/luchoh_photography";
+  };
 
-  # https://devenv.sh/processes/
-  # processes.ping.exec = "ping example.com";
-
-  # See full reference at https://devenv.sh/reference/options/
+  enterShell = ''
+    hello
+    git --version
+    if [ ! -d "$DEVENV_ROOT/postgres-data" ]; then
+      mkdir -p "$DEVENV_ROOT/postgres-data"
+      ${pkgs.postgresql}/bin/initdb \
+        --auth=trust \
+        --no-locale \
+        --encoding=UTF8 \
+        -D "$DEVENV_ROOT/postgres-data"
+      
+      ${pkgs.postgresql}/bin/pg_ctl -D "$DEVENV_ROOT/postgres-data" -l "$DEVENV_ROOT/postgres-data/postgresql.log" start
+      ${pkgs.postgresql}/bin/createdb luchoh_photography
+      ${pkgs.postgresql}/bin/psql -d luchoh_photography -c "CREATE USER luchoh WITH PASSWORD 'luchoh.com' SUPERUSER;"
+      ${pkgs.postgresql}/bin/pg_ctl -D "$DEVENV_ROOT/postgres-data" stop
+    fi
+  '';
 }

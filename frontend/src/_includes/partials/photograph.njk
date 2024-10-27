@@ -1,23 +1,26 @@
-{# Project: luchoh.com refactoring # File: frontend/src/_includes/partials/photograph.njk #}
-{% if image %}
-    <div>
-        <h3 id="title" itemprop="name">{{ image.title }}</h3>
-        {% if image.description %}
-            <h4>{{ image.description }}</h4>
-        {% endif %}
-    </div>
-    <div class="row">
-        <div class="col s12 l12 m12 center-align">
-            {% if image.file_path %}
-                <img src="{{ image.file_path }}" alt="{{ image.title }}" class="center-align responsive-img">
-                    {% if image.thumbnail_url %}
-                        <img src="{{ image.thumbnail_url }}" class="hide" itemprop="thumbnail">
-                        {% endif %}
-                    {% else %}
-                        <p>Image file not available</p>
-                    {% endif %}
-                </div>
-            </div>
-        {% else %}
-            <p>No image data available</p>
-        {% endif %}
+{# Project: luchoh.com refactoring # File:
+frontend/src/_includes/partials/photograph.njk #} {% if image %}
+<div>
+  <h3 id="title" itemprop="name">{{ image.title }}</h3>
+  {% if image.description %}
+  <h4>{{ image.description }}</h4>
+  {% endif %}
+</div>
+<div class="row">
+  <div class="col s12 l12 m12 center-align">
+    {% if image.file_path %}
+    <img
+      src="{{ image.file_path }}"
+      alt="{{ image.title }}"
+      class="center-align responsive-img"
+    />
+    {% if image.thumbnail_url %}
+    <img src="{{ image.thumbnail_url }}" class="hide" itemprop="thumbnail" />
+    {% endif %} {% else %}
+    <p>Image file not available</p>
+    {% endif %}
+  </div>
+</div>
+{% else %}
+<p>No image data available</p>
+{% endif %}

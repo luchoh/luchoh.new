@@ -4,13 +4,21 @@
   "description": "luchoH Galleries",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon server.js"
+    "start": "nodemon server.js",
+    "lint": "eslint 'src/**/*.js'",
+    "lint:html": "htmlhint src/**/*.njk",
+    "format:njk": "prettier --write \"src/**/*.njk\""
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "nodemon": "^2.0.22"
+    "@eslint/js": "^9.13.0",
+    "eslint": "^9.13.0",
+    "globals": "^15.11.0",
+    "htmlhint": "^1.1.4",
+    "nodemon": "^2.0.22",
+    "prettier": "^3.3.3"
   },
   "dependencies": {
     "dotenv": "^16.4.5",

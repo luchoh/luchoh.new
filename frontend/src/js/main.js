@@ -1,6 +1,8 @@
 /*Project: luchoh.com refactoring
 File: frontend/src/js/main.js*/
 
+/* global lightbox, M */
+
 let apiBaseUrl = '';
 
 async function fetchConfig() {
@@ -67,7 +69,7 @@ function isLoggedIn() {
     return !!localStorage.getItem('token');
 }
 
-async function checkLoginStatus() {
+export async function checkLoginStatus() {
     const token = localStorage.getItem('token');
     if (!token) return false;
 
