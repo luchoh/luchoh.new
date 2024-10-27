@@ -33,7 +33,6 @@ def upgrade() -> None:
             ["images.id"],
         ),
     )
-    op.drop_constraint("images_ibfk_1", "images", type_="foreignkey")
     op.drop_column("images", "gallery_id")
     # ### end Alembic commands ###
 
