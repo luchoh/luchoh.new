@@ -20,13 +20,13 @@ app = FastAPI(
     title="LuchoH Photography API", openapi_url=f"{settings.API_V1_STR}/openapi.json"
 )
 
-print(f"BACKEND_CORS_ORIGINS: {settings.BACKEND_CORS_ORIGINS_LIST}")
+print(f"BACKEND_CORS_ORIGINS: {settings.backend_cors_origins_list}")
 
 # Set all CORS enabled origins
-if settings.BACKEND_CORS_ORIGINS_LIST:
+if settings.backend_cors_origins_list:
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=settings.BACKEND_CORS_ORIGINS_LIST,
+        allow_origins=settings.backend_cors_origins_list,
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
