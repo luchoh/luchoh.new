@@ -21,8 +21,6 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     # Drop foreign key constraints first
-    op.drop_constraint("gallery_image_ibfk_1", "gallery_image", type_="foreignkey")
-    op.drop_constraint("gallery_image_ibfk_2", "gallery_image", type_="foreignkey")
 
     # Drop the gallery_image table
     op.drop_table("gallery_image")
