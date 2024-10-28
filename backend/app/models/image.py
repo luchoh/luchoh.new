@@ -24,6 +24,7 @@ class Image(Base):
     description = Column(String(500))
     file_path = Column(String(255))
     thumbnail_url = Column(String(255), nullable=True)
+    slug = Column(String(255), index=True)
     # pylint: disable=not-callable
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())

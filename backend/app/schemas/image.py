@@ -40,10 +40,13 @@ class ImageInDBBase(ImageBase):
 
 
 class Image(ImageInDBBase):
-    slug: str
+    title: Optional[str] = None
+    description: Optional[str] = None
     file_path: str
     thumbnail_url: Optional[str]
     tags: List[TagSchema] = []
+    slug: str
+    sticky: bool = False
 
     # pylint: disable=too-few-public-methods
     class Config:
