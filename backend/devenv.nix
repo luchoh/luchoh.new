@@ -22,13 +22,13 @@
 
   processes.postgres = {
     exec =
-      "${pkgs.postgresql}/bin/postgres -D $DEVENV_ROOT/postgres-data -k $DEVENV_ROOT/postgres-data";
+      "${pkgs.postgresql}/bin/postgres -D $DEVENV_ROOT/postgres-data -k $DEVENV_ROOT/postgres-data -p 5445";
   };
 
   env = {
     GREET = "luchoh-backend";
     DATABASE_URL =
-      "postgresql://luchoh:luchoh.com@127.0.0.1:5432/luchoh_photography";
+      "postgresql://luchoh:luchoh.com@127.0.0.1:5445/luchoh_photography";
   };
 
   enterShell = ''
@@ -42,9 +42,9 @@
         --encoding=UTF8 \
         -D "$DEVENV_ROOT/postgres-data"
       
-      ${pkgs.postgresql}/bin/pg_ctl -D "$DEVENV_ROOT/postgres-data" -l "$DEVENV_ROOT/postgres-data/postgresql.log" start
-      ${pkgs.postgresql}/bin/createdb luchoh_photography
-      ${pkgs.postgresql}/bin/psql -d luchoh_photography -c "CREATE USER luchoh WITH PASSWORD 'luchoh.com' SUPERUSER;"
+      ${pkgs.postgresql}/bin/pg_ctl -D "$DEVENV_ROOT/postgres-data" -l "$DEVENV_ROOT/postgres-data/postgresql.log" -o "-p 5445" start
+      ${pkgs.postgresql}/bin/createdb -p 5445 luchoh_photography
+      ${pkgs.postgresql}/bin/psql -p 5445 -d luchoh_photography -c "CREATE USER luchoh WITH PASSWORD 'luchoh.com' SUPERUSER;"
       ${pkgs.postgresql}/bin/pg_ctl -D "$DEVENV_ROOT/postgres-data" stop
     fi
   '';
