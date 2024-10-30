@@ -136,7 +136,7 @@ export async function loadImages() {
 
             imageElement.innerHTML = `
                 <h3>${escapeHtml(img.title)}</h3>
-                <p>${escapeHtml(img.description)}</p>
+                <p>${escapeHtml(img.description || '')}</p>
                 <img src="${escapeHtml(img.file_path)}" alt="${escapeHtml(img.title)}" style="max-width: 200px;">
                 <img class="thumbnail" src="${escapeHtml(img.thumbnail_url || img.file_path)}" alt="Thumbnail" style="max-width: 100px;">
                 <p>Tags: ${displayTags.map(tag => escapeHtml(tag.name)).join(', ')}</p>
@@ -176,7 +176,8 @@ export async function createThumbnail(imageId, cropData) {
 
 // Helper function to escape HTML special characters
 function escapeHtml(unsafe) {
-    return unsafe
+    if (unsafe == null) return '';
+    return String(unsafe)
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
