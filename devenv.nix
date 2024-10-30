@@ -8,7 +8,7 @@
   };
 
   # https://devenv.sh/packages/
-  packages = [ pkgs.git pkgs.poetry pkgs.pkg-config ];
+  packages = [ pkgs.git pkgs.poetry pkgs.pkg-config pkgs.opencv];
 
   # https://devenv.sh/scripts/
   scripts.hello.exec = "echo hello from $GREET";

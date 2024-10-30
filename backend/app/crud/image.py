@@ -81,6 +81,10 @@ class CRUDImage(CRUDBase[Image, ImageCreate, ImageUpdate]):
             elif not sticky and sticky_tag in db_obj.tags:
                 db_obj.tags.remove(sticky_tag)
 
+        thumbnail_url = update_data.pop("thumbnail_url", None)
+        if thumbnail_url is not None:
+            db_obj.thumbnail_url = thumbnail_url
+
         db.add(db_obj)
         db.commit()
         db.refresh(db_obj)
@@ -88,17 +92,9 @@ class CRUDImage(CRUDBase[Image, ImageCreate, ImageUpdate]):
 
     # pylint: disable=arguments-differ
     def get_multi(self, db: Session, *, skip: int = 0, limit: int = 100) -> List[Image]:
-        return (
-            db.query(self.model)
-            .order_by(self.model.created_at.desc())
-            .offset(skip)
-            .limit(limit)
-            .all()
-        )
+        return db.query(self.model).order_by(self.model.created_at.desc()).offset(skip).limit(limit).all()
 
-    def get_sticky_images(
-        self, db: Session, *, skip: int = 0, limit: int = 100
-    ) -> List[Image]:
+    def get_sticky_images(self, db: Session, *, skip: int = 0, limit: int = 100) -> List[Image]:
         return (
             db.query(self.model)
             .join(Image.tags)
@@ -109,9 +105,7 @@ class CRUDImage(CRUDBase[Image, ImageCreate, ImageUpdate]):
             .all()
         )
 
-    def get_tag_images_by_id(
-        self, db: Session, *, tag_id: int, skip: int = 0, limit: int = 100
-    ) -> List[Image]:
+    def get_tag_images_by_id(self, db: Session, *, tag_id: int, skip: int = 0, limit: int = 100) -> List[Image]:
         return (
             db.query(self.model)
             .join(Image.tags)

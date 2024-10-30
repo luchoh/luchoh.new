@@ -17,6 +17,7 @@ from app.schemas.image import ImageCreate, ImageUpload
 from app.utils.file import generate_file_path
 from app.utils.image import generate_image_response
 from app.utils.slugify import generate_slug
+from app.utils.thumbnail import create_smart_thumbnail
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -25,12 +26,8 @@ logger.info("Images module loaded")
 
 router = APIRouter()
 
-async def process_image_upload(
-    file: UploadFile,
-    image_data: ImageUpload,
-    db: Session,
-    current_user: models.User
-):
+
+async def process_image_upload(file: UploadFile, image_data: ImageUpload, db: Session, current_user: models.User):
     if not crud.user.is_superuser(current_user):
         raise HTTPException(status_code=403, detail="Not enough permissions")
 
@@ -52,6 +49,7 @@ async def process_image_upload(
 
     return crud.image.create(db=db, obj_in=image_in)
 
+
 @router.post("/", response_model=schemas.Image)
 async def create_image(
     request: Request,
@@ -64,13 +62,18 @@ async def create_image(
 
     try:
         image = await process_image_upload(file, image_data, db, current_user)
+
+        # Generate thumbnail
+        thumbnail_path = create_smart_thumbnail(image.file_path)
+
+        # Update image with thumbnail information
+        image = crud.image.update(db, db_obj=image, obj_in={"thumbnail_url": thumbnail_path})
+
         return generate_image_response(image, request)
     except Exception as e:
         logger.error("Error creating image: %s", str(e))
-        raise HTTPException(
-            status_code=500,
-            detail=f"Internal server error: {str(e)}"
-        ) from e
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}") from e
+
 
 @router.get("/{image_id_slug}", response_model=schemas.Image)
 def read_image(
@@ -96,6 +99,7 @@ def read_image(
     logger.info("Image response data: %s", response_data)
     return response_data
 
+
 @router.get("/", response_model=List[schemas.Image])
 def read_images(
     request: Request,
@@ -105,6 +109,7 @@ def read_images(
 ):
     images = crud.image.get_multi(db, skip=skip, limit=limit)
     return [generate_image_response(image, request) for image in images]
+
 
 @router.put("/{image_id}", response_model=schemas.Image)
 def update_image(
@@ -127,12 +132,11 @@ def update_image(
         image_in.description = unquote(image_in.description)
 
     if image_in.tags:
-        image_in.tags = [
-            int(tag_id) for tag_id in image_in.tags if str(tag_id).isdigit()
-        ]
+        image_in.tags = [int(tag_id) for tag_id in image_in.tags if str(tag_id).isdigit()]
 
     image = crud.image.update(db=db, db_obj=image, obj_in=image_in)
     return generate_image_response(image, request)
+
 
 @router.delete("/{image_id}", response_model=schemas.Image)
 def delete_image(
@@ -149,6 +153,7 @@ def delete_image(
         raise HTTPException(status_code=403, detail="Not enough permissions")
     image = crud.image.remove(db=db, _id=image_id)
     return generate_image_response(image, request)
+
 
 @router.post("/{image_id}/thumbnail", response_model=schemas.Image)
 async def create_thumbnail(
@@ -169,14 +174,12 @@ async def create_thumbnail(
             new_height = int(img.height * crop_data.scaleY)
             img = img.resize((new_width, new_height))
 
-        cropped_img = img.crop(
-            (
-                int(crop_data.x),
-                int(crop_data.y),
-                int(crop_data.x + crop_data.width),
-                int(crop_data.y + crop_data.height),
-            )
-        )
+        cropped_img = img.crop((
+            int(crop_data.x),
+            int(crop_data.y),
+            int(crop_data.x + crop_data.width),
+            int(crop_data.y + crop_data.height),
+        ))
 
         thumbnail_size = (200, 200)
         cropped_img.thumbnail(thumbnail_size)
@@ -192,6 +195,7 @@ async def create_thumbnail(
         db.refresh(image)
 
     return image
+
 
 @router.get("/by_tag/{tag_name}", response_model=List[schemas.Image])
 def read_images_by_tag(
