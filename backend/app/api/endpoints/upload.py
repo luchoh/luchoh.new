@@ -14,9 +14,7 @@ from app.utils.file import generate_file_path
 router = APIRouter()
 
 # Use an absolute path for UPLOAD_DIRECTORY
-UPLOAD_DIRECTORY = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "..", "..", "..", "uploads")
-)
+UPLOAD_DIRECTORY = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "uploads"))
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif"}
 
 
@@ -29,6 +27,9 @@ async def create_upload_file(
     file: UploadFile = File(...),
     current_user: User = Depends(deps.get_current_active_user),
 ):
+    print(f"Received file: {file}")
+    print(f"File content type: {file.content_type}")
+
     if not crud.user.is_superuser(current_user):
         raise HTTPException(status_code=403, detail="Not enough permissions")
 
@@ -44,9 +45,7 @@ async def create_upload_file(
         with open(file_location, "wb+") as file_object:
             shutil.copyfileobj(file.file, file_object)
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Could not upload file: {str(e)}"
-        ) from e
+        raise HTTPException(status_code=500, detail=f"Could not upload file: {str(e)}") from e
 
     file_size = os.path.getsize(file_location)
 

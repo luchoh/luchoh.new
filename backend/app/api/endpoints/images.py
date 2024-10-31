@@ -5,7 +5,7 @@ import os
 from typing import List
 from urllib.parse import unquote
 
-from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile
+from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile, Form
 from PIL import Image as PILImage
 from sqlalchemy.orm import Session
 
@@ -27,7 +27,9 @@ logger.info("Images module loaded")
 router = APIRouter()
 
 
-async def process_image_upload(file: UploadFile, image_data: ImageUpload, db: Session, current_user: models.User):
+async def process_image_upload(
+    file: UploadFile, title: str, description: str, sticky: bool, tags: str, db: Session, current_user: models.User
+):
     if not crud.user.is_superuser(current_user):
         raise HTTPException(status_code=403, detail="Not enough permissions")
 
@@ -37,13 +39,13 @@ async def process_image_upload(file: UploadFile, image_data: ImageUpload, db: Se
         content = await file.read()
         buffer.write(content)
 
-    tag_list = [tag.strip() for tag in image_data.tags.split(",") if tag.strip()]
+    tag_list = [tag.strip() for tag in tags.split(",") if tag.strip()]
 
     image_in = ImageCreate(
-        title=image_data.title,
-        description=image_data.description,
+        title=title,
+        description=description,
         file_path=relative_path,
-        sticky=image_data.sticky,
+        sticky=sticky,
         tags=tag_list,
     )
 
@@ -54,14 +56,17 @@ async def process_image_upload(file: UploadFile, image_data: ImageUpload, db: Se
 async def create_image(
     request: Request,
     file: UploadFile = File(...),
-    image_data: ImageUpload = Depends(),
+    title: str = Form(...),
+    description: str = Form(...),
+    sticky: bool = Form(...),
+    tags: str = Form(...),
     db: Session = Depends(deps.get_db),
     current_user: models.User = Depends(deps.get_current_active_user),
 ):
     logger.info("Create image endpoint called")
 
     try:
-        image = await process_image_upload(file, image_data, db, current_user)
+        image = await process_image_upload(file, title, description, sticky, tags, db, current_user)
 
         # Generate thumbnail
         thumbnail_path = create_smart_thumbnail(image.file_path)

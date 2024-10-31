@@ -122,6 +122,9 @@ function setupUploadForm() {
 async function handleImageUpload(e) {
     e.preventDefault();
     const formData = new FormData(e.target);
+
+    formData.append('sticky', formData.get('DEFAULT_TAG') === 'on' ? 'true' : 'false');
+
     try {
         await image.uploadImage(formData);
         alert('Image uploaded successfully');

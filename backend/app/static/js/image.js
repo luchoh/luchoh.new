@@ -6,53 +6,33 @@ import { handleError } from './utils.js';
 
 const DEFAULT_TAG = window.appConfig.DEFAULT_TAG || 'sticky';
 
-export async function uploadImage(file, title, description) {
+export async function uploadImage(formData) {
     const token = getToken();
+    const requestFormData = new FormData();
 
-    // First, upload the file
-    const formData = new FormData();
-    formData.append('file', file);
+    // Append file first
+    requestFormData.append('file', formData.get('file'));
 
-    const uploadResponse = await fetch('/api/v1/upload/uploadfile/', {
+    // Append other fields with correct field names
+    requestFormData.append('title', formData.get('title'));
+    requestFormData.append('description', formData.get('description'));
+    requestFormData.append('sticky', formData.get('sticky'));
+    requestFormData.append('tags', formData.get('tags') ? formData.get('tags') : '');
+
+    const response = await fetch('/api/v1/images/', {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${token}`
         },
-        body: formData
+        body: requestFormData
     });
 
-    if (!uploadResponse.ok) {
-        const errorData = await uploadResponse.json();
-        throw new Error(`Failed to upload file: ${JSON.stringify(errorData)}`);
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`Failed to upload image: ${JSON.stringify(errorData)}`);
     }
 
-    const uploadResult = await uploadResponse.json();
-    console.log('Upload result:', uploadResult);  // Debug log
-
-    // Now create the image record
-    const imageData = {
-        file_path: uploadResult.file_path,
-        title: title,
-        description: description
-    };
-
-    const createResponse = await fetch('/api/v1/images/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(imageData)
-    });
-
-    if (!createResponse.ok) {
-        const errorData = await createResponse.json();
-        throw new Error(`Failed to create image record: ${JSON.stringify(errorData)}`);
-    }
-
-    const responseData = await createResponse.json();
-    console.log('Response data:', responseData);  // Debug log
-    return responseData;
+    return await response.json();
 }
 
 export async function updateImage(id, updateData) {
