@@ -29,6 +29,7 @@ class Image(Base):
         description (str): Description of the image.
         file_path (str): Path to the image file.
         thumbnail_url (str): URL of the image thumbnail.
+        slug (str): URL-friendly version of the title
         created_at (datetime): Timestamp of when the image was created.
         updated_at (datetime): Timestamp of when the image was last updated.
         tags (relationship): Many-to-many relationship with Tag model.
@@ -40,6 +41,7 @@ class Image(Base):
     description = Column(String(500))
     file_path = Column(String(255))
     thumbnail_url = Column(String(255), nullable=True)
+    slug = Column(String(255), index=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 

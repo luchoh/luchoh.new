@@ -15,13 +15,14 @@ from .base import CRUDBase
 class CRUDImage(CRUDBase[Image, ImageCreate, ImageUpdate]):
     """CRUD operations for Image model."""
 
-    def create(self, db: Session, obj_in: ImageCreate) -> Image:
+    def create(self, db: Session, obj_in: ImageCreate, slug: str) -> Image:
         """
         Create a new image.
 
         Args:
             db (Session): The database session.
             obj_in (ImageCreate): The image data to create.
+            slug (str): The generated slug for the image.
 
         Returns:
             Image: The created image.
@@ -30,8 +31,8 @@ class CRUDImage(CRUDBase[Image, ImageCreate, ImageUpdate]):
             title=obj_in.title,
             description=obj_in.description,
             file_path=obj_in.file_path,
-            thumbnail_url=obj_in.thumbnail_url,
-            slug=generate_slug(obj_in.title),
+            thumbnail_url=None,
+            slug=slug
         )
         db.add(db_obj)
         db.commit()

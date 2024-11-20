@@ -21,7 +21,6 @@ class ImageBase(BaseModel):
 
 class ImageCreate(ImageBase):
     """Schema for creating a new Image."""
-    file: UploadFile
     title: str
     description: Optional[str] = None
     sticky: bool = False

@@ -121,13 +121,31 @@ function setupUploadForm() {
 
 async function handleImageUpload(e) {
     e.preventDefault();
-    const formData = new FormData(e.target);
+    
+    const fileInput = document.getElementById('image-file');
+    const titleInput = document.getElementById('image-title');
+    const descriptionInput = document.getElementById('image-description');
+    const stickyInput = document.getElementById('image-sticky');
+    const tagsInput = document.getElementById('image-tags');
+    
+    if (!fileInput.files || fileInput.files.length === 0) {
+        alert('Please select a file to upload');
+        return;
+    }
+
     try {
-        await image.uploadImage(formData);
+        const file = fileInput.files[0];
+        const title = titleInput.value;
+        const description = descriptionInput.value;
+        const sticky = stickyInput.checked;
+        const tags = tagsInput.value;
+
+        await image.uploadImage(file, title, description, sticky, tags);
         alert('Image uploaded successfully');
         e.target.reset();
         await image.loadImages();
     } catch (error) {
+        console.error('Upload error:', error);
         handleError(error);
     }
 }

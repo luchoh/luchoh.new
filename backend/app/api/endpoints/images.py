@@ -8,7 +8,7 @@ import logging
 from typing import List, Optional
 from urllib.parse import unquote
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, File, Form, UploadFile
 from sqlalchemy.orm import Session
 from PIL import Image as PILImage
 
@@ -29,7 +29,11 @@ router = APIRouter()
 @router.post("/", response_model=schemas.Image)
 async def create_image(
     request: Request,
-    image_in: schemas.ImageCreate,
+    file: UploadFile = File(...),
+    title: str = Form(...),
+    description: Optional[str] = Form(None),
+    sticky: bool = Form(False),
+    tags: str = Form(""),
     db: Session = Depends(deps.get_db),
     current_user: models.User = Depends(deps.get_current_active_user),
 ):
@@ -41,23 +45,27 @@ async def create_image(
     if not crud.user.is_superuser(current_user):
         raise HTTPException(status_code=403, detail="Not enough permissions")
 
-    relative_path, full_path = generate_file_path(image_in.file.filename)
-
-    with open(full_path, "wb") as buffer:
-        content = await image_in.file.read()
-        buffer.write(content)
-
     try:
-        image = crud.image.create(
-            db=db,
-            obj_in=schemas.ImageCreate(
-                title=image_in.title,
-                description=image_in.description,
-                file_path=relative_path,
-                sticky=image_in.sticky,
-                tags=image_in.tags,
-            )
+        # Handle file upload
+        relative_path, full_path = generate_file_path(file.filename)
+        with open(full_path, "wb") as buffer:
+            content = await file.read()
+            buffer.write(content)
+
+        # Create image record
+        image_in = schemas.ImageCreate(
+            title=title,
+            description=description,
+            file_path=relative_path,
+            sticky=sticky,
+            tags=tags.split(',') if tags else []
         )
+        
+        # Generate slug from title
+        slug = generate_slug(title)
+        
+        # Create the image with the generated slug
+        image = crud.image.create(db=db, obj_in=image_in, slug=slug)
         return generate_image_response(image, request)
     except Exception as e:
         logger.error("Error creating image: %s", str(e))
