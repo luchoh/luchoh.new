@@ -10,29 +10,34 @@ from app.schemas.image import ImageCreate, ImageUpdate
 from app.utils.slugify import generate_slug
 from app.core.config import settings
 from .base import CRUDBase
+import os
+import hashlib
 
 
 class CRUDImage(CRUDBase[Image, ImageCreate, ImageUpdate]):
     """CRUD operations for Image model."""
 
     def create(self, db: Session, obj_in: ImageCreate, slug: str) -> Image:
-        """
-        Create a new image.
-
-        Args:
-            db (Session): The database session.
-            obj_in (ImageCreate): The image data to create.
-            slug (str): The generated slug for the image.
-
-        Returns:
-            Image: The created image.
-        """
+        """Create a new image."""
+        # Calculate file hash
+        file_hash = None
+        if os.path.exists(obj_in.file_path):
+            with open(obj_in.file_path, "rb") as f:
+                file_hash = hashlib.sha256(f.read()).hexdigest()
+        
+        # Check for existing image with same hash
+        if file_hash:
+            existing_image = db.query(Image).filter(Image.file_hash == file_hash).first()
+            if existing_image:
+                return existing_image
+        
         db_obj = Image(
             title=obj_in.title,
             description=obj_in.description,
             file_path=obj_in.file_path,
             thumbnail_url=None,
-            slug=slug
+            slug=slug,
+            file_hash=file_hash
         )
         db.add(db_obj)
         db.commit()

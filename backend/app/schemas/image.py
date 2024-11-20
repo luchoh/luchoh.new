@@ -72,3 +72,7 @@ class CropData(BaseModel):
     rotate: float
     scaleX: float
     scaleY: float
+
+    class Config:
+        """Pydantic config for ORM mode."""
+        from_attributes = True

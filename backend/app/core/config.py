@@ -31,7 +31,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
     # Rate limiting settings
-    RATE_LIMIT_MAX_REQUESTS: int = 100
+    RATE_LIMIT_MAX_REQUESTS: int = 1000
     RATE_LIMIT_WINDOW_SECONDS: int = 60
     RATE_LIMIT_MAX_TOKENS: int = 10000
 

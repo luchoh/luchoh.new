@@ -37,37 +37,54 @@ async def create_image(
     db: Session = Depends(deps.get_db),
     current_user: models.User = Depends(deps.get_current_active_user),
 ):
-    """
-    Create a new image entry.
-    """
+    """Create a new image entry."""
     logger.info("Create image endpoint called")
 
     if not crud.user.is_superuser(current_user):
         raise HTTPException(status_code=403, detail="Not enough permissions")
 
     try:
-        # Handle file upload
+        # Generate paths but don't save file yet
         relative_path, full_path = generate_file_path(file.filename)
-        with open(full_path, "wb") as buffer:
-            content = await file.read()
+        temp_path = f"{full_path}.temp"
+
+        # First save to temporary file
+        content = await file.read()
+        with open(temp_path, "wb") as buffer:
             buffer.write(content)
 
-        # Create image record
-        image_in = schemas.ImageCreate(
-            title=title,
-            description=description,
-            file_path=relative_path,
-            sticky=sticky,
-            tags=tags.split(',') if tags else []
-        )
-        
-        # Generate slug from title
-        slug = generate_slug(title)
-        
-        # Create the image with the generated slug
-        image = crud.image.create(db=db, obj_in=image_in, slug=slug)
-        return generate_image_response(image, request)
+        try:
+            # Create image record
+            image_in = schemas.ImageCreate(
+                title=title,
+                description=description,
+                file_path=relative_path,
+                sticky=sticky,
+                tags=tags.split(',') if tags else []
+            )
+            
+            # Generate slug from title
+            slug = generate_slug(title)
+            
+            # Try to create the image record
+            image = crud.image.create(db=db, obj_in=image_in, slug=slug)
+
+            # If database creation succeeded, move file to final location
+            os.rename(temp_path, full_path)
+
+            return generate_image_response(image, request)
+
+        except Exception as db_error:
+            # If database creation failed, delete temp file
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
+            raise db_error
+
     except Exception as e:
+        # Clean up temp file if it exists
+        if 'temp_path' in locals() and os.path.exists(temp_path):
+            os.remove(temp_path)
+        
         logger.error("Error creating image: %s", str(e))
         raise HTTPException(
             status_code=500,
@@ -228,3 +245,13 @@ async def create_thumbnail(
     updated_image = crud.image.update(db=db, db_obj=image, obj_in=image_in)
 
     return updated_image
+
+@router.get("/check_hash/{file_hash}")
+async def check_image_hash(
+    file_hash: str,
+    db: Session = Depends(deps.get_db),
+    current_user: models.User = Depends(deps.get_current_active_user),
+):
+    """Check if an image with the given hash already exists."""
+    image = db.query(models.Image).filter(models.Image.file_hash == file_hash).first()
+    return {"exists": image is not None}

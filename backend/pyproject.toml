@@ -1,8 +1,11 @@
 [tool.poetry]
-name = "luchoh.com"
+name = "luchoh"
 version = "0.1.0"
 description = "luchoH Photography"
 authors = ["Lucho Hristov <luchoh@luchoh.com>"]
+packages = [
+    { include = "app" }
+]
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -22,6 +25,13 @@ pillow = "^10.4.0"
 unidecode = "^1.3.8"
 cachetools = "^5.3.3"  # Added for rate limiting
 psycopg2-binary = "^2.9.10"
+exifread = "^3.0.0"
+tqdm = "^4.66.2"
+click = "^8.1.7"
+requests = "^2.31.0"
+python-magic = "^0.4.27"
+opencv-python = "^4.9.0.80"
+xattr = "^0.10.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.3.0"
@@ -38,3 +48,4 @@ autopep8 = "^2.3.1"
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+import-photos = "app.utils.import_images:main"
