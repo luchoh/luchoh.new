@@ -5,7 +5,7 @@
 
 import os
 import logging
-from typing import List
+from typing import List, Optional
 from urllib.parse import unquote
 
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -102,12 +102,20 @@ def read_images(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
     limit: int = 100,
+    current_user: models.User = Depends(deps.get_current_active_user),
 ):
     """
     Retrieve a list of images.
     """
-    images = crud.image.get_multi(db, skip=skip, limit=limit)
-    return [generate_image_response(image, request) for image in images]
+    try:
+        images = crud.image.get_multi(db, skip=skip, limit=limit)
+        return [generate_image_response(image, request) for image in images]
+    except Exception as e:
+        logger.error("Error fetching images: %s", str(e))
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error fetching images: {str(e)}"
+        ) from e
 
 
 @router.put("/{image_id}", response_model=schemas.Image)

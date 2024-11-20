@@ -4,7 +4,7 @@
 """Dependency functions for FastAPI endpoints."""
 
 from datetime import datetime, timezone
-from typing import Generator
+from typing import Generator, Optional
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
@@ -21,7 +21,6 @@ reusable_oauth2 = OAuth2PasswordBearer(
     tokenUrl=f"{settings.API_V1_STR}/login/access-token"
 )
 
-
 def get_db() -> Generator:
     """
     Dependency function to get a database session.
@@ -33,8 +32,26 @@ def get_db() -> Generator:
     finally:
         db.close()
 
+reusable_oauth2_optional = OAuth2PasswordBearer(
+    tokenUrl=f"{settings.API_V1_STR}/login/access-token",
+    auto_error=False
+)
 
-def get_current_user(
+async def get_current_user_optional(
+    db: Session = Depends(get_db),
+    token: str = Depends(reusable_oauth2_optional)
+) -> Optional[models.User]:
+    """
+    Similar to get_current_user but doesn't raise an exception if no token is provided.
+    """
+    if not token:
+        return None
+    try:
+        return await get_current_user(db=db, token=token)
+    except HTTPException:
+        return None
+
+async def get_current_user(
     db: Session = Depends(get_db), token: str = Depends(reusable_oauth2)
 ) -> models.User:
     """

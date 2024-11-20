@@ -4,7 +4,7 @@
 """CRUD operations for Image model."""
 
 from typing import List
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from app.models.image import Image, Tag
 from app.schemas.image import ImageCreate, ImageUpdate
 from app.utils.slugify import generate_slug
@@ -120,6 +120,7 @@ class CRUDImage(CRUDBase[Image, ImageCreate, ImageUpdate]):
         """
         return (
             db.query(self.model)
+            .options(joinedload(self.model.tags))  # Eager load tags
             .order_by(self.model.created_at.desc())
             .offset(skip)
             .limit(limit)
