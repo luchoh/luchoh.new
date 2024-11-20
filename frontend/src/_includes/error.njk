@@ -1,0 +1,12 @@
+{% extends "base.njk" %}
+
+{% block content %}
+<div class="error-container">
+    <h1>Error</h1>
+    <p>{{ error.message }}</p>
+    {% if error.details %}
+    <pre class="error-details">{{ error.details }}</pre>
+    {% endif %}
+    <p><a href="/">Return to Homepage</a></p>
+</div>
+{% endblock %}

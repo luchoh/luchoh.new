@@ -34,7 +34,7 @@ class ImageUpdate(BaseModel):
     file_path: Optional[str] = None
     thumbnail_url: Optional[str] = None
     tags: Optional[List[int]] = None
-    sticky: Optional[bool] = None
+    sticky: Optional[bool] = None  # Add sticky field to update schema
 
 
 class ImageInDBBase(ImageBase):

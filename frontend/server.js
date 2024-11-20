@@ -28,32 +28,75 @@ app.use('/css', express.static(path.join(__dirname, 'node_modules/materialize-cs
 app.use('/js', express.static(path.join(__dirname, 'node_modules/materialize-css/dist/js')));
 
 async function fetchTagsAndImages(tagName = config.defaultTag || "sticky") {
+    console.log(`Fetching data for tag: ${tagName}`);
+    console.log(`API Base URL: ${config.apiBaseUrl}`);
+    
     try {
-        const [tagsResponse, imagesResponse] = await Promise.all([
-            fetch(`${config.apiBaseUrl}/tags/`),
-            fetch(`${config.apiBaseUrl}/images/by_tag/${tagName}`)
-        ]);
+        // First fetch tags
+        const tagsResponse = await fetch(`${config.apiBaseUrl}/tags/`).catch(error => {
+            console.error('Error fetching tags:', error);
+            throw new Error(`Failed to fetch tags: ${error.message}`);
+        });
 
-        if (!tagsResponse.ok || !imagesResponse.ok) {
-            throw new Error('Failed to fetch data');
+        if (!tagsResponse.ok) {
+            const errorText = await tagsResponse.text();
+            console.error('Tags response not OK:', tagsResponse.status, errorText);
+            throw new Error(`Tags API error: ${tagsResponse.status} - ${errorText}`);
         }
 
         const tags = await tagsResponse.json();
+        
+        // Find the tag ID for the requested tag name
+        const targetTag = tags.find(t => t.name === tagName);
+        if (!targetTag) {
+            console.log(`Tag "${tagName}" not found, fetching all images`);
+            // If tag not found, fetch all images
+            const imagesResponse = await fetch(`${config.apiBaseUrl}/images/`);
+            if (!imagesResponse.ok) {
+                const errorText = await imagesResponse.text();
+                console.error('Images response not OK:', imagesResponse.status, errorText);
+                throw new Error(`Images API error: ${imagesResponse.status} - ${errorText}`);
+            }
+            const images = await imagesResponse.json();
+            return { tags, images };
+        }
+
+        // Fetch images for the specific tag
+        const imagesResponse = await fetch(`${config.apiBaseUrl}/tags/${targetTag.id}/images`).catch(error => {
+            console.error('Error fetching images:', error);
+            throw new Error(`Failed to fetch images: ${error.message}`);
+        });
+
+        if (!imagesResponse.ok) {
+            const errorText = await imagesResponse.text();
+            console.error('Images response not OK:', imagesResponse.status, errorText);
+            throw new Error(`Images API error: ${imagesResponse.status} - ${errorText}`);
+        }
+
         const images = await imagesResponse.json();
 
-        // Filter out the 'sticky' tag from the menu
+        // Filter out the default tag from the menu
         const menuTags = tags.filter(tag => tag.name !== config.defaultTag);
 
+        console.log('Successfully fetched data:', { 
+            tagCount: menuTags.length, 
+            imageCount: images.length,
+            tagName,
+            tagId: targetTag.id
+        });
+        
         return { tags: menuTags, images };
     } catch (error) {
-        console.error('Error fetching tags and images:', error);
+        console.error('Error in fetchTagsAndImages:', error);
         throw error;
     }
 }
 
 app.get('/', async (req, res) => {
     try {
+        console.log('Processing root route request');
         const { tags, images } = await fetchTagsAndImages();
+        console.log(`Rendering index with ${tags.length} tags and ${images.length} images`);
         res.render('index.njk', {
             tags,
             images,
@@ -65,13 +108,19 @@ app.get('/', async (req, res) => {
             bannerImage: '/images/banner.jpg'
         });
     } catch (error) {
-        console.error('Error fetching data:', error);
-        res.status(500).send('Error fetching data');
+        console.error('Error processing root route:', error);
+        res.status(500).render('error.njk', {
+            error: {
+                message: 'Error fetching data',
+                details: process.env.NODE_ENV === 'development' ? error.message : undefined
+            }
+        });
     }
 });
 
 app.get('/tag/:tagName', async (req, res) => {
     try {
+        console.log(`Processing tag route request for tag: ${req.params.tagName}`);
         const { tags, images } = await fetchTagsAndImages(req.params.tagName);
         res.render('index.njk', {
             tags,
@@ -84,7 +133,12 @@ app.get('/tag/:tagName', async (req, res) => {
         });
     } catch (error) {
         console.error('Error fetching tag data:', error);
-        res.status(500).send('Error fetching tag data');
+        res.status(500).render('error.njk', {
+            error: {
+                message: 'Error fetching tag data',
+                details: process.env.NODE_ENV === 'development' ? error.message : undefined
+            }
+        });
     }
 });
 
@@ -92,6 +146,27 @@ app.get('/config', (req, res) => {
     res.json({
         apiBaseUrl: config.apiBaseUrl
     });
+});
+
+app.get('/health', async (req, res) => {
+    try {
+        const response = await fetch(`${config.apiBaseUrl}/`);
+        if (response.ok) {
+            res.json({ status: 'ok', api: 'connected' });
+        } else {
+            res.status(503).json({ 
+                status: 'error', 
+                message: 'API not responding correctly',
+                statusCode: response.status
+            });
+        }
+    } catch (error) {
+        res.status(503).json({ 
+            status: 'error', 
+            message: 'Cannot connect to API',
+            error: error.message
+        });
+    }
 });
 
 app.listen(port, () => {

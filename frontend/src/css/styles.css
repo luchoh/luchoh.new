@@ -1,4 +1,4 @@
-/* Project: luchoh.com refactoring
+/ * Project: luchoh.com refactoring
    File: frontend/src/css/styles.css */
 
 html {
@@ -237,24 +237,48 @@ nav ul.menu.hide-on-med-and-down li a:hover {
     background-color: #444;
 }
 
-/* Lightbox customization */
-.lb-outerContainer {
-    background-color: #222;
+/* Error Page Styles */
+.error-container {
+    text-align: center;
+    padding: 2rem;
+    margin: 2rem auto;
+    max-width: 600px;
+    background-color: #333;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
-.lb-dataContainer {
-    background-color: #222;
+.error-container h1 {
+    color: #ff4444;
+    margin-bottom: 1rem;
 }
 
-.lb-data .lb-caption {
+.error-container p {
     color: #B1B1B1;
+    margin-bottom: 1rem;
 }
 
-.lb-data .lb-number {
-    color: #888;
+.error-details {
+    background: #222;
+    padding: 1rem;
+    border-radius: 4px;
+    color: #ff8888;
+    text-align: left;
+    overflow-x: auto;
+    margin: 1rem 0;
+}
+
+.error-container a {
+    color: #4CAF50;
+    text-decoration: none;
+}
+
+.error-container a:hover {
+    text-decoration: underline;
 }
 
 /* Custom Modal Styles */
+
 .custom-modal {
     background-color: #333;
     color: #B1B1B1;
@@ -297,6 +321,43 @@ nav ul.menu.hide-on-med-and-down li a:hover {
 
 .custom-modal .custom-button:hover {
     background-color: #555;
+}
+
+/* Lightbox Customization */
+.lb-outerContainer {
+    background-color: #333;
+    border-radius: 0;
+}
+
+.lb-container {
+    padding: 0;
+}
+
+.lb-nav a.lb-prev,
+.lb-nav a.lb-next {
+    opacity: 0.8;
+}
+
+.lb-nav a.lb-prev:hover,
+.lb-nav a.lb-next:hover {
+    opacity: 1;
+}
+
+.lb-data .lb-caption {
+    font-size: 1rem;
+    color: #fff;
+}
+
+.lb-data .lb-number {
+    color: #999;
+}
+
+.lb-data .lb-close {
+    opacity: 0.8;
+}
+
+.lb-data .lb-close:hover {
+    opacity: 1;
 }
 
 /* Materialize overrides */

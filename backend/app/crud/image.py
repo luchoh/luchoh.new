@@ -74,33 +74,39 @@ class CRUDImage(CRUDBase[Image, ImageCreate, ImageUpdate]):
         # Handle tags separately
         tags = update_data.pop("tags", None)
 
-        # Handle sticky separately
-        sticky = update_data.pop(settings.DEFAULT_TAG, None)
-
         # Update slug if title is changed
         if "title" in update_data:
             update_data["slug"] = generate_slug(update_data["title"])
 
         for field in update_data:
-            setattr(db_obj, field, update_data[field])
+            if field != "sticky":  # Skip sticky as we handle it with tags
+                setattr(db_obj, field, update_data[field])
 
+        # Handle tags and sticky flag
         if tags is not None:
-            db_obj.tags = []
+            # Start with provided tags
+            new_tags = []
             for tag_id in tags:
                 tag = db.query(Tag).filter(Tag.id == tag_id).first()
                 if tag:
-                    db_obj.tags.append(tag)
+                    new_tags.append(tag)
 
-        if sticky is not None:
+            # Handle sticky tag
             sticky_tag = db.query(Tag).filter(Tag.name == settings.DEFAULT_TAG).first()
             if not sticky_tag:
                 sticky_tag = Tag(name=settings.DEFAULT_TAG)
                 db.add(sticky_tag)
+                db.commit()
 
-            if sticky and sticky_tag not in db_obj.tags:
-                db_obj.tags.append(sticky_tag)
-            elif not sticky and sticky_tag in db_obj.tags:
-                db_obj.tags.remove(sticky_tag)
+            # Check if sticky should be included based on the update data
+            sticky = update_data.get("sticky", None)
+            if sticky is not None:
+                if sticky and sticky_tag not in new_tags:
+                    new_tags.append(sticky_tag)
+                # If sticky is False, it will be excluded from new_tags
+
+            # Update the tags
+            db_obj.tags = new_tags
 
         db.add(db_obj)
         db.commit()
